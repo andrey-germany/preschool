@@ -372,8 +372,12 @@
 
     <div id="reward-container"></div>
 
-    <script src="games.js"></script>
-    <script>
+    <script type="module">
+        import { triggerReward, addConfettiStyles, shuffleArray, setRandomGradientBackground, SessionTimer } from '../lib/games.js';
+        import { GAMES } from '../lib/config.js';
+
+        addConfettiStyles();
+
         // Story Templates (Mad Libs style)
         const storyTemplates = [
             {
@@ -614,6 +618,11 @@
         initializeTemplateSelector();
         setRandomGradientBackground();
         updateStats();
+
+        // Start session timer
+        const sessionLength = GAMES.storyBuilder?.sessionLengthMinutes || 15;
+        const sessionTimer = new SessionTimer(sessionLength);
+        sessionTimer.start();
     </script>
 
 </body>

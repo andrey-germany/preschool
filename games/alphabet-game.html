@@ -227,8 +227,12 @@
         <h1 id="page-title"></h1>
     </div>
 
-    <script src="games.js"></script>
-    <script>
+    <script type="module">
+        import { setPageLanguage, getLocalizedStrings, setRandomGradientBackground, triggerReward, addConfettiStyles, SessionTimer } from '../lib/games.js';
+        import { GAMES } from '../lib/config.js';
+
+        addConfettiStyles();
+
         // Game state
         const uppercaseAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         const lowercaseAlphabet = 'abcdefghijklmnopqrstuvwxyz';
@@ -237,6 +241,7 @@
         let currentIndex = 0;
         let isUppercase = true;
         let isAlphabeticalOrder = true;
+        let sessionTimer = null;
 
         // DOM elements
         const currentLetterDiv = document.getElementById('current-letter');
@@ -374,6 +379,11 @@
         updateOrderButtonUI();
         updateLetterListAndDisplay();
         setRandomGradientBackground();
+
+        // Start session timer
+        const sessionLength = GAMES.alphabet?.sessionLengthMinutes || 10;
+        sessionTimer = new SessionTimer(sessionLength);
+        sessionTimer.start();
     </script>
 
 </body>
