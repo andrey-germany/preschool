@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sequenz-Builder Spiel - ABC Lernspiele</title>
+
+    <meta name="description"
+        content="Ordne Objekte in der richtigen Reihenfolge. Trainiert logisches Denken und Seriation."
+        lang="de">
+    <meta name="description"
+        content="Arrange objects in the correct order. Trains logical thinking and seriation."
+        lang="en">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background-attachment: fixed;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #f5576c;
+            color: #f5576c;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            min-width: 52px;
+            min-height: 52px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-button:hover {
+            background: #f5576c;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        #page-title {
+            color: white;
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-board {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .instruction {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        .game-area {
+            background: #f9f9f9;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            min-height: 300px;
+        }
+
+        .sequence-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .sequence-item {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 2em;
+            font-weight: 600;
+            min-width: 70px;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropzone-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .dropzone-area {
+            display: flex;
+            justify-content: space-around;
+            gap: 12px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .dropzone {
+            width: 90px;
+            height: 90px;
+            border: 3px dashed #ddd;
+            border-radius: 12px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.8em;
+            color: #f5576c;
+            position: relative;
+            min-width: 90px;
+            min-height: 90px;
+        }
+
+        .dropzone:hover {
+            border-color: #f5576c;
+            background: rgba(245, 87, 108, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .dropzone.highlight {
+            border-color: #f5576c;
+            background: rgba(245, 87, 108, 0.1);
+            border-width: 4px;
+            box-shadow: 0 0 20px rgba(245, 87, 108, 0.3);
+        }
+
+        .dropzone.filled {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-color: #f5576c;
+            cursor: default;
+        }
+
+        .draggable-items {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .draggable-item {
+            padding: 12px 20px;
+            background: #f5f5f5;
+            border: 2px solid #f5576c;
+            border-radius: 8px;
+            font-size: 1.6em;
+            cursor: grab;
+            transition: all 0.2s ease;
+            user-select: none;
+            touch-action: none;
+            min-width: 50px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #f5576c;
+        }
+
+        .draggable-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.2);
+        }
+
+        .draggable-item.dragging {
+            opacity: 0.5;
+            z-index: 1000;
+        }
+
+        .draggable-item.used {
+            opacity: 0.3;
+            cursor: default;
+        }
+
+        .difficulty-selector {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-btn {
+            padding: 8px 16px;
+            border: 2px solid #ccc;
+            background: white;
+            color: #f5576c;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 40px;
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .difficulty-btn.active {
+            background: #f5576c;
+            color: white;
+            border-color: #f5576c;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            font-size: 1em;
+            color: #666;
+        }
+
+        .score-display {
+            font-weight: 600;
+            color: #f5576c;
+            font-size: 1.2em;
+        }
+
+        #controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1.05em;
+            cursor: pointer;
+            background-color: #f5576c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            line-height: 1.2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
+            min-height: 50px;
+            margin: 6px;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background-color: #E84B82;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #reward-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @media (max-width: 768px) {
+            #page-title {
+                font-size: 1.6em;
+            }
+
+            .dropzone {
+                width: 75px;
+                height: 75px;
+            }
+
+            .game-area {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <a href="index.html" class="back-button" id="back-button">← Zurück zum Menü</a>
+
+        <div id="page-title">Sequenz-Builder Spiel</div>
+
+        <div class="game-board">
+            <div class="instruction" id="instruction">Ordne die Objekte in der richtigen Reihenfolge!</div>
+
+            <div class="difficulty-selector">
+                <button class="difficulty-btn active" data-difficulty="1">Leicht (3 Objekte)</button>
+                <button class="difficulty-btn" data-difficulty="2">Mittel (4 Objekte)</button>
+                <button class="difficulty-btn" data-difficulty="3">Schwer (5 Objekte)</button>
+            </div>
+
+            <div class="game-area">
+                <div class="dropzone-label">Muster zum Anordnen:</div>
+                <div class="sequence-display" id="sequenceDisplay"></div>
+
+                <div class="dropzone-label">Deine Anordnung:</div>
+                <div class="dropzone-area" id="dropzoneArea"></div>
+
+                <div class="dropzone-label">Verfügbare Objekte:</div>
+                <div class="draggable-items" id="draggableItems"></div>
+            </div>
+
+            <div class="progress-info">
+                <span>Platziert: <span class="score-display" id="placedCount">0</span>/<span id="totalCount">3</span></span>
+                <span id="completeMessage" style="color: #4CAF50; font-weight: 600; display: none;">✓ Fertig!</span>
+            </div>
+
+            <div id="controls">
+                <button onclick="location.reload()">Neu starten</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="reward-container"></div>
+
+    <script type="module">
+        import { triggerReward, addConfettiStyles, shuffleArray, SessionTimer } from './games.js';
+        import { GAMES } from './config.js';
+
+        addConfettiStyles();
+
+        class SequenceBuilderGame {
+            constructor() {
+                this.difficulty = 1;
+                this.sequences = [];
+                this.currentSequence = null;
+                this.placed = 0;
+                this.sessionTimer = null;
+
+                this.setupEventListeners();
+                this.startGame();
+                this.startSessionTimer();
+            }
+
+            setupEventListeners() {
+                document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.difficulty = parseInt(e.target.dataset.difficulty);
+                        this.startGame();
+                    });
+                });
+            }
+
+            getSequences() {
+                const sequenceSets = {
+                    1: [ // 3 items - Size progression
+                        { items: [1, 2, 3], type: 'size', label: 'Größe', emojis: ['🐜', '🐱', '🦣'] },
+                        { items: [1, 2, 3], type: 'size', label: 'Größe', emojis: ['🍒', '🍎', '🍉'] },
+                        { items: [1, 2, 3], type: 'size', label: 'Größe', emojis: ['🌱', '🌳', '🌲'] }
+                    ],
+                    2: [ // 4 items - Color/darkness progression
+                        { items: [1, 2, 3, 4], type: 'color', label: 'Farbtöne', emojis: ['⚪', '🩶', '⚫', '🖤'] },
+                        { items: [1, 2, 3, 4], type: 'warmth', label: 'Temperatur', emojis: ['❄️', '🧊', '☀️', '🔥'] },
+                        { items: [1, 2, 3, 4], type: 'growth', label: 'Wachstum', emojis: ['🥚', '🐣', '🐥', '🐔'] }
+                    ],
+                    3: [ // 5 items - Complex sequences
+                        { items: [1, 2, 3, 4, 5], type: 'number', label: 'Zahlen', emojis: ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣'] },
+                        { items: [1, 2, 3, 4, 5], type: 'moon', label: 'Mondphasen', emojis: ['🌑', '🌒', '🌓', '🌕', '🌘'] },
+                        { items: [1, 2, 3, 4, 5], type: 'butterfly', label: 'Schmetterlingsmetamorphose', emojis: ['🥚', '🐛', '🛡️', '🦋', '🦋'] }
+                    ]
+                };
+                return sequenceSets[this.difficulty];
+            }
+
+            startGame() {
+                const sequences = this.getSequences();
+                this.currentSequence = sequences[Math.floor(Math.random() * sequences.length)];
+                this.placed = 0;
+
+                document.getElementById('totalCount').textContent = this.currentSequence.items.length;
+                document.getElementById('placedCount').textContent = '0';
+                document.getElementById('completeMessage').style.display = 'none';
+
+                this.renderGame();
+            }
+
+            renderGame() {
+                // Display the pattern
+                const sequenceDisplay = document.getElementById('sequenceDisplay');
+                sequenceDisplay.innerHTML = '';
+                this.currentSequence.emojis.forEach(emoji => {
+                    const item = document.createElement('div');
+                    item.className = 'sequence-item';
+                    item.textContent = emoji;
+                    sequenceDisplay.appendChild(item);
+                });
+
+                // Create dropzones
+                const dropzoneArea = document.getElementById('dropzoneArea');
+                dropzoneArea.innerHTML = '';
+                for (let i = 0; i < this.currentSequence.items.length; i++) {
+                    const dropzone = document.createElement('div');
+                    dropzone.className = 'dropzone';
+                    dropzone.dataset.index = i;
+                    dropzone.dataset.filled = 'false';
+
+                    dropzone.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        dropzone.classList.add('highlight');
+                    });
+
+                    dropzone.addEventListener('dragleave', () => {
+                        dropzone.classList.remove('highlight');
+                    });
+
+                    dropzone.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        dropzone.classList.remove('highlight');
+                        const itemIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                        this.handleDrop(itemIndex, i, dropzone);
+                    });
+
+                    dropzoneArea.appendChild(dropzone);
+                }
+
+                // Create draggable items
+                const draggableItems = document.getElementById('draggableItems');
+                draggableItems.innerHTML = '';
+                const shuffled = shuffleArray(this.currentSequence.items.map((_, i) => i));
+                shuffled.forEach(idx => {
+                    const item = document.createElement('div');
+                    item.className = 'draggable-item';
+                    item.textContent = this.currentSequence.emojis[idx];
+                    item.dataset.index = idx;
+                    item.draggable = true;
+
+                    item.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/plain', idx);
+                        item.classList.add('dragging');
+                    });
+
+                    item.addEventListener('dragend', () => {
+                        item.classList.remove('dragging');
+                    });
+
+                    draggableItems.appendChild(item);
+                });
+            }
+
+            handleDrop(itemIndex, dropzoneIndex, dropzone) {
+                if (itemIndex === dropzoneIndex) {
+                    // Correct!
+                    dropzone.classList.add('filled');
+                    dropzone.textContent = this.currentSequence.emojis[itemIndex];
+                    dropzone.dataset.filled = 'true';
+
+                    // Hide the dragged item
+                    const draggableItem = document.querySelector(`[data-index="${itemIndex}"]`);
+                    if (draggableItem) {
+                        draggableItem.classList.add('used');
+                    }
+
+                    this.placed++;
+                    triggerReward(dropzone);
+                    this.playCorrectSound();
+
+                    document.getElementById('placedCount').textContent = this.placed;
+
+                    if (this.placed === this.currentSequence.items.length) {
+                        this.completeGame();
+                    }
+                } else {
+                    // Wrong
+                    dropzone.style.animation = 'shake 0.4s ease';
+                    setTimeout(() => dropzone.style.animation = '', 400);
+                    this.playWrongSound();
+                }
+            }
+
+            completeGame() {
+                document.getElementById('completeMessage').style.display = 'inline';
+                triggerReward(document.querySelector('.game-board'));
+
+                if (this.sessionTimer) {
+                    this.sessionTimer.destroy();
+                }
+            }
+
+            playCorrectSound() {
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    osc.frequency.value = 600;
+                    gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                    osc.start(audioContext.currentTime);
+                    osc.stop(audioContext.currentTime + 0.1);
+                } catch (e) { }
+            }
+
+            playWrongSound() {
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    osc.frequency.value = 300;
+                    gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                    osc.start(audioContext.currentTime);
+                    osc.stop(audioContext.currentTime + 0.2);
+                } catch (e) { }
+            }
+
+            startSessionTimer() {
+                const sessionLength = GAMES.storyBuilder?.sessionLengthMinutes || 15; // Similar to story builder
+                this.sessionTimer = new SessionTimer(sessionLength);
+                this.sessionTimer.start();
+            }
+        }
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-10px); }
+                75% { transform: translateX(10px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        window.addEventListener('load', () => {
+            new SequenceBuilderGame();
+        });
+    </script>
+</body>
+
+</html>
