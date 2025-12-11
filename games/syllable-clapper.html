@@ -391,6 +391,10 @@
 
                 <button class="clap-button" id="clapBtn">👏 KLATSCHEN</button>
 
+                <div style="margin-top: 20px;">
+                    <button class="clap-button" id="checkBtn" style="background-color: #4CAF50; display: none;">✓ Antwort prüfen</button>
+                </div>
+
                 <div class="syllable-breakdown" id="syllableBreakdown"></div>
             </div>
 
@@ -441,12 +445,16 @@
 
                 document.getElementById('playBtn').addEventListener('click', () => this.playWord());
                 document.getElementById('clapBtn').addEventListener('click', () => this.clap());
+                document.getElementById('checkBtn').addEventListener('click', () => this.checkAnswer());
 
-                // Keyboard support: Space to clap
+                // Keyboard support: Space to clap, Enter to check
                 document.addEventListener('keydown', (e) => {
                     if (e.code === 'Space') {
                         e.preventDefault();
                         this.clap();
+                    } else if (e.code === 'Enter') {
+                        e.preventDefault();
+                        this.checkAnswer();
                     }
                 });
             }
@@ -484,6 +492,11 @@
                     return;
                 }
 
+                // Hide check button for next word
+                document.getElementById('checkBtn').style.display = 'none';
+                document.getElementById('syllableBreakdown').innerHTML = '';
+                document.getElementById('syllableBreakdown').classList.remove('show');
+
                 this.currentWord = this.words[this.correct];
                 this.clapCount = 0;
                 document.getElementById('clapCount').textContent = '0';
@@ -508,6 +521,10 @@
                 this.clapCount++;
                 document.getElementById('clapCount').textContent = this.clapCount;
 
+                // Show check button after first clap
+                const checkBtn = document.getElementById('checkBtn');
+                checkBtn.style.display = 'block';
+
                 // Visual feedback
                 const clapBtn = document.getElementById('clapBtn');
                 clapBtn.style.animation = 'none';
@@ -517,6 +534,11 @@
 
                 // Play clap sound
                 this.playSound(800, 0.15);
+
+                // Cancel auto-check if it was scheduled
+                if (this.checkTimer) {
+                    clearTimeout(this.checkTimer);
+                }
             }
 
             checkAnswer() {

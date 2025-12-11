@@ -333,11 +333,15 @@
 
     <div id="reward-container"></div>
 
-    <script src="games.js"></script>
-    <script>
+    <script type="module">
+        import { triggerReward, addConfettiStyles, SessionTimer } from '../lib/games.js';
+        import { GAMES } from '../lib/config.js';
+
+        addConfettiStyles();
+
         // Game state
         const uppercaseAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        const sampleWords = ['MAMA', 'PAPA', 'OMA', 'OPA', 'HUND', 'KATZE', 'BAUM', 'SONNE'];
+        const sampleWords = ['Mama', 'Papa', 'Oma', 'Opa', 'Hund', 'Katze', 'Baum', 'Sonne'];
 
         let currentMode = 'letters'; // 'letters' or 'words'
         let currentSound = '';
@@ -346,6 +350,7 @@
         let speechRate = 0.8; // Slow
         let soundsCorrect = 0;
         let soundsAttempted = 0;
+        let sessionTimer = null;
 
         // DOM elements
         const soundDisplay = document.getElementById('current-sound');
@@ -361,22 +366,11 @@
         const soundLabel = document.getElementById('sound-label');
         const soundStatus = document.getElementById('sound-status');
 
-        // Localize interface
-        setPageLanguage();
-        const strings = getLocalizedStrings();
-
-        // Initialize localization
+        // Initialize localization (German only)
         function initializeLocalization() {
-            const lang = navigator.language.split('-')[0];
-            if (lang === 'de') {
-                instructionsElement.textContent = 'Drücke "Abspielen", höre den Laut, und tippe dann den Buchstaben oder das Wort.';
-                pageTitleElement.textContent = 'Laut-Gehör Spiel';
-                backButton.textContent = '← Zurück zum Menü';
-            } else {
-                instructionsElement.textContent = 'Press "Play", listen to the sound, then type the letter or word.';
-                pageTitleElement.textContent = 'Sound Recognition Game';
-                backButton.textContent = '← Back to Menu';
-            }
+            instructionsElement.textContent = 'Drücke "Abspielen", höre den Laut, und tippe dann den Buchstaben oder das Wort.';
+            pageTitleElement.textContent = 'Laut-Gehör Spiel';
+            backButton.textContent = '← Zurück zum Menü';
         }
 
         initializeLocalization();
@@ -531,6 +525,11 @@
         initializeSoundSequence();
         updateStats();
         setRandomGradientBackground();
+
+        // Start session timer
+        const sessionLength = GAMES.soundRecognition?.sessionLengthMinutes || 8;
+        sessionTimer = new SessionTimer(sessionLength);
+        sessionTimer.start();
 
         // Auto-play first sound after 500ms
         setTimeout(() => {

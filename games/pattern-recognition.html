@@ -352,32 +352,36 @@
 
     <div id="reward-container"></div>
 
-    <script src="games.js"></script>
-    <script>
-        // Pattern types and data
+    <script type="module">
+        import { triggerReward, addConfettiStyles, SessionTimer } from '../lib/games.js';
+        import { GAMES } from '../lib/config.js';
+
+        addConfettiStyles();
+
+        // Pattern types and data (German words only)
         const patternTypes = {
             'rhymes': {
                 name: 'Wortfamilien (Reime)',
                 patterns: [
-                    { family: ['CAT', 'BAT', 'HAT', 'MAT', 'RAT', 'FAT'], answer: 'SAT' },
-                    { family: ['DOG', 'HOG', 'FOG', 'LOG', 'BOG', 'JOG'], answer: 'COG' },
-                    { family: ['SUN', 'RUN', 'BUN', 'FUN', 'GUN', 'NUN'], answer: 'PUN' },
-                    { family: ['BIKE', 'HIKE', 'LIKE', 'MIKE', 'PIKE', 'TIKE'], answer: 'DIKE' },
-                    { family: ['BALL', 'CALL', 'FALL', 'HALL', 'TALL', 'WALL'], answer: 'SMALL' },
-                    { family: ['RING', 'KING', 'SING', 'WING', 'THING', 'DING'], answer: 'PING' },
-                    { family: ['BEAR', 'CARE', 'DARE', 'FAIR', 'HAIR', 'PAIR'], answer: 'WEAR' },
-                    { family: ['JUMP', 'BUMP', 'DUMP', 'LUMP', 'PUMP', 'HUMP'], answer: 'THUMP' }
+                    { family: ['Katze', 'Sätze', 'Hälfte', 'Tätze', 'Plätze', 'Sätze'], answer: 'Kätze' },
+                    { family: ['Haus', 'Maus', 'Laus', 'Sauce', 'Pause', 'Cause'], answer: 'Blaus' },
+                    { family: ['Tag', 'Schlag', 'Frag', 'Hag', 'Lag', 'Sag'], answer: 'Wag' },
+                    { family: ['Blume', 'Baume', 'Faume', 'Laume', 'Raume', 'Zaume'], answer: 'Shame' },
+                    { family: ['See', 'Tee', 'Feen', 'Bühne', 'Weh', 'Schnee'], answer: 'Ehe' },
+                    { family: ['Baum', 'Traum', 'Saum', 'Raum', 'Schaum', 'Straum'], answer: 'Daum' },
+                    { family: ['Nacht', 'Kraft', 'Schaft', 'Haft', 'Tracht', 'Macht'], answer: 'Lacht' },
+                    { family: ['Hand', 'Strand', 'Band', 'Land', 'Sand', 'Wand'], answer: 'Gland' }
                 ],
                 explanation: 'Alle Wörter in dieser Familie reimen sich (gleiches Endsound)'
             },
             'morphology': {
                 name: 'Morphologie (Wortveränderungen)',
                 patterns: [
-                    { family: ['WALK', 'WALKS', 'WALKED', 'WALKING', 'WALKER'], answer: 'WALKED' },
-                    { family: ['PLAY', 'PLAYS', 'PLAYED', 'PLAYING', 'PLAYER'], answer: 'PLAYING' },
-                    { family: ['JUMP', 'JUMPS', 'JUMPED', 'JUMPING', 'JUMPER'], answer: 'JUMPED' },
-                    { family: ['HAPPY', 'HAPPIER', 'HAPPIEST', 'HAPPILY', 'UNHAPPY'], answer: 'HAPPIEST' },
-                    { family: ['TEACH', 'TEACHES', 'TAUGHT', 'TEACHING', 'TEACHER'], answer: 'TEACHING' }
+                    { family: ['Laufen', 'Läuft', 'Lief', 'Laufen', 'Läufer', 'Laufend'], answer: 'Gelaufen' },
+                    { family: ['Spielen', 'Spielt', 'Spielte', 'Spielend', 'Spieler', 'Gespielt'], answer: 'Spielerin' },
+                    { family: ['Springen', 'Springt', 'Sprang', 'Springend', 'Springer', 'Gesprungen'], answer: 'Sprünge' },
+                    { family: ['Schön', 'Schöner', 'Schönste', 'Schönheit', 'Schönlich', 'Unschön'], answer: 'Schönlich' },
+                    { family: ['Lehren', 'Lehrt', 'Lehrte', 'Lehrend', 'Lehrer', 'Gelehrt'], answer: 'Unterricht' }
                 ],
                 explanation: 'Das Wort verändert sich durch Zusätze oder Änderungen (Zeitform, Vergleich)'
             }
@@ -389,6 +393,7 @@
         let patternsCorrect = 0;
         let patternsAttempted = 0;
         let difficulty = 1;
+        let sessionTimer = null;
 
         // DOM elements
         const patternSeries = document.getElementById('pattern-series');
@@ -404,20 +409,11 @@
         const patternExplanation = document.getElementById('pattern-explanation');
         const difficultyElement = document.getElementById('difficulty');
 
-        // Localize interface
-        setPageLanguage();
-        const lang = navigator.language.split('-')[0];
-
+        // Localize interface (German only)
         function initializeLocalization() {
-            if (lang === 'de') {
-                instructionsElement.textContent = 'Erkenne das Muster und gebe das fehlende Wort ein. Der Platzhalter (?) zeigt an, welches Wort fehlt.';
-                pageTitleElement.textContent = 'Muster Erkennungs Spiel';
-                backButton.textContent = '← Zurück zum Menü';
-            } else {
-                instructionsElement.textContent = 'Recognize the pattern and enter the missing word. The placeholder (?) shows which word is missing.';
-                pageTitleElement.textContent = 'Pattern Recognition Game';
-                backButton.textContent = '← Back to Menu';
-            }
+            instructionsElement.textContent = 'Erkenne das Muster und gebe das fehlende Wort ein. Der Platzhalter (?) zeigt an, welches Wort fehlt.';
+            pageTitleElement.textContent = 'Muster Erkennungs Spiel';
+            backButton.textContent = '← Zurück zum Menü';
         }
 
         initializeLocalization();
@@ -558,6 +554,11 @@
         updateTypeButton();
         updateStats();
         setRandomGradientBackground();
+
+        // Start session timer
+        const sessionLength = GAMES.patternRecognition?.sessionLengthMinutes || 12;
+        sessionTimer = new SessionTimer(sessionLength);
+        sessionTimer.start();
     </script>
 
 </body>

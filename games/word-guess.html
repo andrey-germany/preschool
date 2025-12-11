@@ -226,10 +226,14 @@
         <div class="stats" id="stats"></div>
     </div>
 
-    <script src="games.js"></script>
-    <script>
+    <script type="module">
+        import { triggerReward, addConfettiStyles, shuffleArray, SessionTimer } from '../lib/games.js';
+        import { GAMES } from '../lib/config.js';
+
+        addConfettiStyles();
+
         // Game state
-        const wordList = ['OMA', 'OPA', 'MAMA', 'PAPA', 'VIOLA', 'ELEA', 'MILO', 'CLAUDIA', 'JOCHEN', 'ANDREAS', 'TONI', 'NICOLAI', 'TINA', 'AMADEUS', 'BIBI', 'PIPPI'];
+        const wordList = ['Oma', 'Opa', 'Mama', 'Papa', 'Nase', 'Ohr', 'Auge', 'Mund', 'Schuh', 'Hut', 'Rock', 'Hemd', 'Baum', 'Blume', 'Hund', 'Katze'];
 
         let currentWord = '';
         let currentWordBlanks = '';
@@ -237,6 +241,7 @@
         let isWordRandomOrder = false;
         let shuffledWordIndices = [];
         let wordsCompleted = 0;
+        let sessionTimer = null;
 
         // DOM elements
         const currentWordDiv = document.getElementById('current-word');
@@ -250,12 +255,14 @@
         const statsElement = document.getElementById('stats');
         const backButton = document.getElementById('back-button');
 
-        // Localize interface
-        setPageLanguage();
-        const strings = getLocalizedStrings();
-        instructionsElement.textContent = strings.wordInstruction;
-        pageTitleElement.textContent = strings.wordGuess;
-        backButton.textContent = '← ' + strings.backToHub;
+        // Localize interface (German only)
+        function initializeLocalization() {
+            instructionsElement.textContent = 'Vervollständige das Wort, indem du die Leerstellen ausfüllst.';
+            pageTitleElement.textContent = 'Wortratespiel';
+            backButton.textContent = '← Zurück zum Menü';
+        }
+
+        initializeLocalization();
 
         // Create word with random blanks
         function createWordWithBlanks(word) {
@@ -364,6 +371,11 @@
         updateWordOrderButtonUI();
         displayWord();
         setRandomGradientBackground();
+
+        // Start session timer
+        const sessionLength = GAMES.wordGuess?.sessionLengthMinutes || 10;
+        sessionTimer = new SessionTimer(sessionLength);
+        sessionTimer.start();
     </script>
 
 </body>
