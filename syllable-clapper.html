@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Silben-Klatscher Spiel - ABC Lernspiele</title>
+
+    <meta name="description"
+        content="Klatsche für jede Silbe die du hörst. Trainiert phonologisches Bewusstsein und Rhythmusgefühl."
+        lang="de">
+    <meta name="description"
+        content="Clap for each syllable you hear. Trains phonological awareness and rhythm."
+        lang="en">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #a6c1ee 0%, #667eea 100%);
+            background-attachment: fixed;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            min-width: 52px;
+            min-height: 52px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-button:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        #page-title {
+            color: white;
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-board {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .instruction {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        .game-area {
+            background: #f9f9f9;
+            border-radius: 15px;
+            padding: 40px 30px;
+            margin-bottom: 25px;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .word-display {
+            background: linear-gradient(135deg, #667eea 0%, #a6c1ee 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            font-size: 1.8em;
+            font-weight: 600;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+            min-width: 280px;
+        }
+
+        .word-display-item {
+            animation: slideInDown 0.5s ease-out;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .syllable-breakdown {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .syllable-breakdown.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .play-btn {
+            padding: 16px 32px;
+            font-size: 1.1em;
+            background: linear-gradient(135deg, #667eea 0%, #a6c1ee 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 56px;
+            min-height: 56px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 6px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .play-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .play-btn:active {
+            transform: translateY(0);
+        }
+
+        .clap-counter {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .clap-counter-label {
+            font-size: 0.9em;
+            color: #999;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .clap-count {
+            font-size: 3em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .clap-button {
+            padding: 14px 28px;
+            font-size: 1.1em;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            min-width: 50px;
+            min-height: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 6px;
+            transition: all 0.2s ease;
+            animation: pulse infinite 2s;
+        }
+
+        .clap-button:hover {
+            transform: scale(1.1);
+            background: #5568d3;
+        }
+
+        .clap-button:active {
+            transform: scale(0.95);
+            background: #4556c3;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(102, 126, 234, 0); }
+        }
+
+        .difficulty-selector {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-btn {
+            padding: 8px 16px;
+            border: 2px solid #ccc;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 40px;
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .difficulty-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            font-size: 1em;
+            color: #666;
+        }
+
+        .score-display {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        #controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1.05em;
+            cursor: pointer;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            line-height: 1.2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
+            min-height: 50px;
+            margin: 6px;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background-color: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #reward-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @media (max-width: 768px) {
+            #page-title {
+                font-size: 1.6em;
+            }
+
+            .word-display {
+                font-size: 1.5em;
+                padding: 20px;
+                min-width: 200px;
+            }
+
+            .game-area {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <a href="index.html" class="back-button" id="back-button">← Zurück zum Menü</a>
+
+        <div id="page-title">Silben-Klatscher Spiel</div>
+
+        <div class="game-board">
+            <div class="instruction" id="instruction">Höre das Wort und klatsche für jede Silbe!</div>
+
+            <div class="difficulty-selector">
+                <button class="difficulty-btn active" data-difficulty="1">Leicht (1-2 Silben)</button>
+                <button class="difficulty-btn" data-difficulty="2">Mittel (2-3 Silben)</button>
+                <button class="difficulty-btn" data-difficulty="3">Schwer (3-4 Silben)</button>
+            </div>
+
+            <div class="game-area">
+                <div class="word-display" id="wordDisplay">🎵</div>
+
+                <div class="control-buttons">
+                    <button class="play-btn" id="playBtn" title="Wort abspielen">🔊 Abspielen</button>
+                </div>
+
+                <div class="clap-counter">
+                    <div class="clap-counter-label">Deine Klatscher:</div>
+                    <div class="clap-count" id="clapCount">0</div>
+                </div>
+
+                <button class="clap-button" id="clapBtn">👏 KLATSCHEN</button>
+
+                <div class="syllable-breakdown" id="syllableBreakdown"></div>
+            </div>
+
+            <div class="progress-info">
+                <span>Richtig: <span class="score-display" id="correctCount">0</span>/<span id="totalCount">5</span></span>
+                <span id="completeMessage" style="color: #4CAF50; font-weight: 600; display: none;">✓ Fertig!</span>
+            </div>
+
+            <div id="controls">
+                <button onclick="location.reload()">Neu starten</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="reward-container"></div>
+
+    <script type="module">
+        import { triggerReward, addConfettiStyles, SessionTimer } from './games.js';
+        import { GAMES } from './config.js';
+
+        addConfettiStyles();
+
+        class SyllableClapperGame {
+            constructor() {
+                this.difficulty = 1;
+                this.words = [];
+                this.currentWord = null;
+                this.clapCount = 0;
+                this.correct = 0;
+                this.sessionTimer = null;
+
+                this.setupEventListeners();
+                this.loadWords();
+                this.nextWord();
+                this.startSessionTimer();
+            }
+
+            setupEventListeners() {
+                document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.difficulty = parseInt(e.target.dataset.difficulty);
+                        this.loadWords();
+                        this.nextWord();
+                    });
+                });
+
+                document.getElementById('playBtn').addEventListener('click', () => this.playWord());
+                document.getElementById('clapBtn').addEventListener('click', () => this.clap());
+
+                // Keyboard support: Space to clap
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        this.clap();
+                    }
+                });
+            }
+
+            loadWords() {
+                const wordSets = {
+                    1: [ // 1-2 syllables
+                        { word: 'Ka-tze', syllables: 2, ipa: 'KAT-tse' },
+                        { word: 'Haus', syllables: 1, ipa: 'HOUS' },
+                        { word: 'Baum', syllables: 1, ipa: 'BAUM' },
+                        { word: 'El-fant', syllables: 2, ipa: 'EL-fant' },
+                        { word: 'Blume', syllables: 2, ipa: 'BLU-me' }
+                    ],
+                    2: [ // 2-3 syllables
+                        { word: 'Schmet-ter-ling', syllables: 3, ipa: 'SHMET-ter-ling' },
+                        { word: 'Auf-zug', syllables: 2, ipa: 'OUF-tsook' },
+                        { word: 'Fahr-rad', syllables: 2, ipa: 'FAR-raht' },
+                        { word: 'Tele-phon', syllables: 3, ipa: 'TE-le-fon' },
+                        { word: 'Ge-gen-stand', syllables: 3, ipa: 'GE-gen-stand' }
+                    ],
+                    3: [ // 3-4 syllables
+                        { word: 'In-for-ma-tion', syllables: 4, ipa: 'in-for-MA-tsion' },
+                        { word: 'Fam-i-lie', syllables: 3, ipa: 'fa-MI-lie' },
+                        { word: 'Ge-schichte', syllables: 3, ipa: 'ge-SHIKH-te' },
+                        { word: 'Ma-the-ma-tik', syllables: 4, ipa: 'ma-te-MA-tik' },
+                        { word: 'Kom-pu-ter', syllables: 3, ipa: 'KOM-pu-ter' }
+                    ]
+                };
+                this.words = wordSets[this.difficulty];
+            }
+
+            nextWord() {
+                if (this.correct >= this.words.length) {
+                    this.completeGame();
+                    return;
+                }
+
+                this.currentWord = this.words[this.correct];
+                this.clapCount = 0;
+                document.getElementById('clapCount').textContent = '0';
+                document.getElementById('wordDisplay').innerHTML = `<div class="word-display-item">🎵</div>`;
+                document.getElementById('syllableBreakdown').classList.remove('show');
+                document.getElementById('totalCount').textContent = this.words.length;
+            }
+
+            playWord() {
+                // Show word
+                document.getElementById('wordDisplay').innerHTML = `<div class="word-display-item">${this.currentWord.word}</div>`;
+
+                // Use Web Speech API
+                const utterance = new SpeechSynthesisUtterance(this.currentWord.word);
+                utterance.lang = 'de-DE';
+                utterance.rate = 0.8; // Slower for clarity
+                utterance.pitch = 1;
+                speechSynthesis.speak(utterance);
+            }
+
+            clap() {
+                this.clapCount++;
+                document.getElementById('clapCount').textContent = this.clapCount;
+
+                // Visual feedback
+                const clapBtn = document.getElementById('clapBtn');
+                clapBtn.style.animation = 'none';
+                setTimeout(() => {
+                    clapBtn.style.animation = 'pulse infinite 2s';
+                }, 10);
+
+                // Play clap sound
+                this.playSound(800, 0.15);
+            }
+
+            checkAnswer() {
+                const breakdown = document.getElementById('syllableBreakdown');
+                breakdown.classList.add('show');
+
+                if (this.clapCount === this.currentWord.syllables) {
+                    // Correct!
+                    breakdown.innerHTML = `✓ Richtig! Das Wort <strong>${this.currentWord.word}</strong> hat <strong>${this.currentWord.syllables}</strong> Silben!`;
+                    breakdown.style.color = '#4CAF50';
+                    this.correct++;
+                    document.getElementById('correctCount').textContent = this.correct;
+                    triggerReward(document.querySelector('.game-board'));
+                    this.playSound(600, 0.2);
+
+                    setTimeout(() => this.nextWord(), 2000);
+                } else {
+                    // Wrong
+                    breakdown.innerHTML = `Nicht ganz! <strong>${this.currentWord.word}</strong> hat <strong>${this.currentWord.syllables}</strong> Silben, aber du hast <strong>${this.clapCount}</strong>x geklatscht. Versuchen Sie es nochmal!`;
+                    breakdown.style.color = '#FF6B9D';
+                    this.playSound(300, 0.1);
+                    setTimeout(() => {
+                        this.clapCount = 0;
+                        document.getElementById('clapCount').textContent = '0';
+                    }, 2000);
+                }
+            }
+
+            completeGame() {
+                document.getElementById('completeMessage').style.display = 'inline';
+                triggerReward(document.querySelector('.game-board'));
+
+                if (this.sessionTimer) {
+                    this.sessionTimer.destroy();
+                }
+            }
+
+            playSound(frequency, gain) {
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    osc.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    osc.frequency.value = frequency;
+                    gainNode.gain.setValueAtTime(gain, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                    osc.start(audioContext.currentTime);
+                    osc.stop(audioContext.currentTime + 0.1);
+                } catch (e) { }
+            }
+
+            startSessionTimer() {
+                const sessionLength = GAMES.soundRecognition?.sessionLengthMinutes || 8;
+                this.sessionTimer = new SessionTimer(sessionLength);
+                this.sessionTimer.start();
+            }
+        }
+
+        // Auto-check after 2 seconds of no clapping
+        let checkTimer;
+        window.addEventListener('load', () => {
+            const game = new SyllableClapperGame();
+            document.getElementById('clapBtn').addEventListener('click', () => {
+                clearTimeout(checkTimer);
+                checkTimer = setTimeout(() => game.checkAnswer(), 2000);
+            });
+        });
+    </script>
+</body>
+
+</html>
