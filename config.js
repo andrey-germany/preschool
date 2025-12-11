@@ -82,6 +82,42 @@ export const GAMES = {
     color: '#FF6B9D',
     path: 'rhyme-memory.html',
     sessionLengthMinutes: 12
+  },
+  sequenceBuilder: {
+    id: 'sequence-builder',
+    name: 'Sequenz-Builder Spiel',
+    icon: '📊',
+    description: 'Ordne Objekte in Reihenfolge',
+    color: '#f5576c',
+    path: 'sequence-builder.html',
+    sessionLengthMinutes: 15
+  },
+  syllableClapper: {
+    id: 'syllable-clapper',
+    name: 'Silben-Klatscher Spiel',
+    icon: '👏',
+    description: 'Klatsche für jede Silbe',
+    color: '#a6c1ee',
+    path: 'syllable-clapper.html',
+    sessionLengthMinutes: 8
+  },
+  shapeExplorer: {
+    id: 'shape-explorer',
+    name: 'Form-Explorer Spiel',
+    icon: '🔷',
+    description: 'Erkenne geometrische Formen',
+    color: '#667eea',
+    path: 'shape-explorer.html',
+    sessionLengthMinutes: 10
+  },
+  countingAdventure: {
+    id: 'counting-adventure',
+    name: 'Zähl-Abenteuer',
+    icon: '🔢',
+    description: 'Zähle Objekte und lerne Zahlen',
+    color: '#FFC107',
+    path: 'counting-adventure.html',
+    sessionLengthMinutes: 10
   }
 };
 
