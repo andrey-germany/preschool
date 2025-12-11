@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laut-Gehör Spiel - ABC Lernspiele</title>
+
+    <meta name="description"
+        content="Höre Buchstaben und Wörter, erkenne und tippe sie. Trainiert phonetisches Verständnis und Gehörwahrnehmung."
+        lang="de">
+    <meta name="description"
+        content="Listen to letter sounds and words, recognize and type them. Trains phonetic awareness and listening comprehension."
+        lang="en">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background-size: 100% 100%;
+            transition: background 2s ease;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #f5576c;
+            color: #f5576c;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            min-width: 52px;
+            min-height: 52px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-button:hover {
+            background: #f5576c;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        #sound-container {
+            margin-bottom: 40px;
+        }
+
+        .sound-display {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sound-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sound-icon {
+            font-size: 4em;
+            margin: 15px 0;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .current-sound {
+            font-size: 5em;
+            font-weight: bold;
+            color: #f5576c;
+            margin: 15px 0;
+            min-height: 1.2em;
+        }
+
+        #play-button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 10px;
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+            min-width: 56px;
+            min-height: 56px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #play-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+        }
+
+        #play-button:active {
+            transform: translateY(0);
+        }
+
+        .sound-status {
+            font-size: 0.9em;
+            color: #999;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+
+        #input-area {
+            margin: 30px 0;
+        }
+
+        #sound-input {
+            font-size: 2em;
+            padding: 14px 12px;
+            width: 130px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            min-height: 50px;
+        }
+
+        #sound-input:focus {
+            border-color: white;
+            box-shadow: 0 0 15px rgba(245, 87, 108, 0.5);
+        }
+
+        #sound-input::placeholder {
+            color: #ccc;
+        }
+
+        #controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        button.control-btn {
+            padding: 12px 24px;
+            font-size: 1.05em;
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #f5576c;
+            border: 2px solid #f5576c;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            min-width: 50px;
+            min-height: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 6px;
+            font-weight: 600;
+        }
+
+        button.control-btn:hover {
+            background-color: #f5576c;
+            color: white;
+        }
+
+        button.control-btn span {
+            font-size: 1.5em;
+            margin-right: 8px;
+        }
+
+        #instructions {
+            margin-top: 15px;
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 1.1em;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        #page-title {
+            margin-top: 20px;
+            color: white;
+            font-size: 1.8em;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats {
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1em;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+
+        #reward-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-size: 1.2em;
+            font-weight: 600;
+            min-height: 30px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .feedback.correct {
+            color: #4caf50;
+        }
+
+        .feedback.incorrect {
+            color: #ff6b6b;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .current-sound {
+                font-size: 3em;
+            }
+
+            .sound-display {
+                padding: 30px;
+            }
+
+            #page-title {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <a href="index.html" class="back-button" id="back-button">← Zurück zum Menü</a>
+
+        <div id="sound-container">
+            <div class="sound-display">
+                <div class="sound-label" id="sound-label">Höre den Laut</div>
+                <div class="sound-icon">🔊</div>
+                <div class="current-sound" id="current-sound">A</div>
+                <button id="play-button">
+                    <span>▶</span> <span id="play-text">Abspielen</span>
+                </button>
+                <div class="sound-status" id="sound-status"></div>
+            </div>
+        </div>
+
+        <div id="input-area">
+            <input type="text" id="sound-input" maxlength="1" placeholder="?" autofocus>
+        </div>
+
+        <div id="controls">
+            <button class="control-btn" id="mode-button">
+                <span id="mode-icon">🔤</span> <span id="mode-text">Einzelne Buchstaben</span>
+            </button>
+            <button class="control-btn" id="speed-button">
+                <span>🐢</span> <span id="speed-text">Langsam</span>
+            </button>
+        </div>
+
+        <div id="feedback" class="feedback"></div>
+
+        <p id="instructions"></p>
+        <h1 id="page-title"></h1>
+
+        <div class="stats" id="stats"></div>
+    </div>
+
+    <div id="reward-container"></div>
+
+    <script src="games.js"></script>
+    <script>
+        // Game state
+        const uppercaseAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const sampleWords = ['MAMA', 'PAPA', 'OMA', 'OPA', 'HUND', 'KATZE', 'BAUM', 'SONNE'];
+
+        let currentMode = 'letters'; // 'letters' or 'words'
+        let currentSound = '';
+        let currentSoundIndex = 0;
+        let soundSequence = [];
+        let speechRate = 0.8; // Slow
+        let soundsCorrect = 0;
+        let soundsAttempted = 0;
+
+        // DOM elements
+        const soundDisplay = document.getElementById('current-sound');
+        const soundInput = document.getElementById('sound-input');
+        const playButton = document.getElementById('play-button');
+        const modeButton = document.getElementById('mode-button');
+        const speedButton = document.getElementById('speed-button');
+        const instructionsElement = document.getElementById('instructions');
+        const pageTitleElement = document.getElementById('page-title');
+        const statsElement = document.getElementById('stats');
+        const feedbackElement = document.getElementById('feedback');
+        const backButton = document.getElementById('back-button');
+        const soundLabel = document.getElementById('sound-label');
+        const soundStatus = document.getElementById('sound-status');
+
+        // Localize interface
+        setPageLanguage();
+        const strings = getLocalizedStrings();
+
+        // Initialize localization
+        function initializeLocalization() {
+            const lang = navigator.language.split('-')[0];
+            if (lang === 'de') {
+                instructionsElement.textContent = 'Drücke "Abspielen", höre den Laut, und tippe dann den Buchstaben oder das Wort.';
+                pageTitleElement.textContent = 'Laut-Gehör Spiel';
+                backButton.textContent = '← Zurück zum Menü';
+            } else {
+                instructionsElement.textContent = 'Press "Play", listen to the sound, then type the letter or word.';
+                pageTitleElement.textContent = 'Sound Recognition Game';
+                backButton.textContent = '← Back to Menu';
+            }
+        }
+
+        initializeLocalization();
+
+        // Text-to-Speech function
+        function speakSound(text) {
+            if ('speechSynthesis' in window) {
+                // Cancel any previous speech
+                window.speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'de-DE';
+                utterance.rate = speechRate;
+                utterance.pitch = 1.2;
+                utterance.volume = 1;
+
+                utterance.onstart = () => {
+                    soundStatus.textContent = '🔊 Listening...';
+                    playButton.disabled = true;
+                    playButton.style.opacity = '0.6';
+                };
+
+                utterance.onend = () => {
+                    soundStatus.textContent = '✓ Ready to type!';
+                    playButton.disabled = false;
+                    playButton.style.opacity = '1';
+                    soundInput.focus();
+                };
+
+                window.speechSynthesis.speak(utterance);
+            } else {
+                soundStatus.textContent = '❌ Speech not supported';
+            }
+        }
+
+        // Initialize sound sequence
+        function initializeSoundSequence() {
+            if (currentMode === 'letters') {
+                soundSequence = uppercaseAlphabet.split('');
+            } else {
+                soundSequence = sampleWords;
+            }
+            currentSoundIndex = 0;
+            displayNextSound();
+        }
+
+        // Display next sound
+        function displayNextSound() {
+            if (soundSequence.length === 0) {
+                soundDisplay.textContent = 'Error';
+                return;
+            }
+
+            currentSound = soundSequence[currentSoundIndex];
+            soundDisplay.textContent = currentMode === 'letters' ? currentSound : '?';
+            soundLabel.textContent = currentMode === 'letters' ? 'Buchstabe' : 'Wort';
+
+            soundInput.value = '';
+            soundInput.focus();
+            feedbackElement.textContent = '';
+            soundStatus.textContent = '';
+        }
+
+        // Play button handler
+        playButton.addEventListener('click', () => {
+            speakSound(currentSound);
+        });
+
+        // Input handler
+        soundInput.addEventListener('input', (event) => {
+            let typedChar = event.target.value.toUpperCase();
+
+            if (typedChar.length > currentSound.length) {
+                soundInput.value = '';
+                return;
+            }
+
+            if (typedChar === currentSound) {
+                soundsAttempted++;
+                soundsCorrect++;
+
+                triggerReward(soundDisplay);
+                setRandomGradientBackground();
+
+                feedbackElement.textContent = '✓ Richtig!';
+                feedbackElement.classList.add('correct');
+                feedbackElement.classList.remove('incorrect');
+
+                currentSoundIndex++;
+                if (currentSoundIndex >= soundSequence.length) {
+                    currentSoundIndex = 0;
+                }
+
+                setTimeout(() => {
+                    displayNextSound();
+                }, 1500);
+
+                updateStats();
+            } else if (typedChar !== '') {
+                soundsAttempted++;
+                feedbackElement.textContent = '✗ Versuche es nochmal';
+                feedbackElement.classList.add('incorrect');
+                feedbackElement.classList.remove('correct');
+                soundInput.value = '';
+            }
+        });
+
+        // Mode toggle
+        modeButton.addEventListener('click', () => {
+            currentMode = currentMode === 'letters' ? 'words' : 'letters';
+            soundsCorrect = 0;
+            soundsAttempted = 0;
+            initializeSoundSequence();
+            updateModeButton();
+            updateStats();
+        });
+
+        // Speed toggle
+        speedButton.addEventListener('click', () => {
+            speechRate = speechRate === 0.8 ? 1.2 : 0.8;
+            updateSpeedButton();
+        });
+
+        // Update mode button UI
+        function updateModeButton() {
+            const modeIcon = document.getElementById('mode-icon');
+            const modeText = document.getElementById('mode-text');
+
+            if (currentMode === 'letters') {
+                modeIcon.textContent = '🔤';
+                modeText.textContent = 'Einzelne Buchstaben';
+            } else {
+                modeIcon.textContent = '📝';
+                modeText.textContent = 'Wörter';
+            }
+        }
+
+        // Update speed button UI
+        function updateSpeedButton() {
+            const speedText = document.getElementById('speed-text');
+            speedText.textContent = speechRate === 0.8 ? 'Langsam' : 'Schnell';
+            speedButton.style.opacity = speechRate === 0.8 ? '1' : '0.8';
+        }
+
+        // Update stats
+        function updateStats() {
+            const accuracy = soundsAttempted > 0 ? Math.round((soundsCorrect / soundsAttempted) * 100) : 0;
+            statsElement.textContent = `Versuche: ${soundsAttempted} | Richtig: ${soundsCorrect} | Genauigkeit: ${accuracy}%`;
+        }
+
+        // Initialize
+        initializeSoundSequence();
+        updateStats();
+        setRandomGradientBackground();
+
+        // Auto-play first sound after 500ms
+        setTimeout(() => {
+            playButton.click();
+        }, 500);
+    </script>
+
+</body>
+
+</html>

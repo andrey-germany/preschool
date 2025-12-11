@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farb-Sortier Spiel - ABC Lernspiele</title>
+
+    <meta name="description"
+        content="Ziehe Objekte in die richtige farbige Behälter. Trainiert Farbwahrnehmung und Sortierungsfähigkeiten."
+        lang="de">
+    <meta name="description"
+        content="Drag objects into the correct colored containers. Trains color perception and sorting skills."
+        lang="en">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            min-width: 52px;
+            min-height: 52px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-button:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        #page-title {
+            color: white;
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-board {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .instruction {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        .game-area {
+            min-height: 350px;
+            background: #f9f9f9;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .objects-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            min-height: 100px;
+        }
+
+        .draggable-object {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: grab;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease;
+            touch-action: none;
+        }
+
+        .draggable-object:hover {
+            transform: scale(1.1);
+        }
+
+        .draggable-object.dragging {
+            opacity: 0.7;
+            z-index: 1000;
+        }
+
+        .containers-area {
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .color-bin {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            border: 4px dashed #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2em;
+            background: rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+            position: relative;
+            min-width: 80px;
+            min-height: 80px;
+        }
+
+        .color-bin:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .color-bin.highlight {
+            border-color: #667eea;
+            border-width: 5px;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .color-bin-label {
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #333;
+            text-transform: uppercase;
+            margin-top: 5px;
+            position: absolute;
+            bottom: 5px;
+            width: 100%;
+        }
+
+        .items-count {
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            font-size: 1em;
+            color: #666;
+        }
+
+        .score-display {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        #controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1.05em;
+            cursor: pointer;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            line-height: 1.2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
+            min-height: 50px;
+            margin: 6px;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background-color: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #reward-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .difficulty-selector {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-btn {
+            padding: 8px 16px;
+            border: 2px solid #ccc;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 40px;
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .difficulty-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            #page-title {
+                font-size: 1.6em;
+            }
+
+            .draggable-object {
+                width: 50px;
+                height: 50px;
+                font-size: 1.8em;
+            }
+
+            .color-bin {
+                width: 70px;
+                height: 70px;
+            }
+
+            .game-board {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <a href="index.html" class="back-button" id="back-button">← Zurück zum Menü</a>
+
+        <div id="page-title">Farb-Sortier Spiel</div>
+
+        <div class="game-board">
+            <div class="instruction" id="instruction">Ziehe die Objekte in die richtige farbige Behälter!</div>
+
+            <div class="difficulty-selector">
+                <button class="difficulty-btn active" data-difficulty="1">Leicht (5 Farben)</button>
+                <button class="difficulty-btn" data-difficulty="2">Mittel (8 Farben)</button>
+                <button class="difficulty-btn" data-difficulty="3">Schwer (Schattierungen)</button>
+            </div>
+
+            <div class="game-area">
+                <div class="objects-area" id="objectsArea"></div>
+                <div class="containers-area" id="containersArea"></div>
+            </div>
+
+            <div class="progress-info">
+                <span>Sortiert: <span class="score-display" id="sortedCount">0</span>/<span id="totalCount">5</span></span>
+                <span id="completeMessage" style="color: #4CAF50; font-weight: 600; display: none;">✓ Fertig!</span>
+            </div>
+
+            <div id="controls">
+                <button onclick="location.reload()">Neu starten</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="reward-container"></div>
+
+    <script type="module">
+        import { triggerReward, addConfettiStyles, shuffleArray, SessionTimer } from './games.js';
+        import { GAMES } from './config.js';
+
+        addConfettiStyles();
+
+        class ColorSortingGame {
+            constructor() {
+                this.difficulty = 1;
+                this.colors = [];
+                this.objects = [];
+                this.sorted = 0;
+                this.sessionTimer = null;
+
+                this.setupEventListeners();
+                this.startGame();
+                this.startSessionTimer();
+            }
+
+            setupEventListeners() {
+                document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.difficulty = parseInt(e.target.dataset.difficulty);
+                        this.startGame();
+                    });
+                });
+            }
+
+            getColors() {
+                const colorSets = {
+                    1: [
+                        { name: 'Rot', hex: '#FF6B6B', german: 'Rot' },
+                        { name: 'Blau', hex: '#4ECDC4', german: 'Blau' },
+                        { name: 'Gelb', hex: '#FFE66D', german: 'Gelb' },
+                        { name: 'Grün', hex: '#95E1D3', german: 'Grün' },
+                        { name: 'Lila', hex: '#C7B3E5', german: 'Lila' }
+                    ],
+                    2: [
+                        { name: 'Rot', hex: '#FF6B6B', german: 'Rot' },
+                        { name: 'Orange', hex: '#FFA07A', german: 'Orange' },
+                        { name: 'Gelb', hex: '#FFE66D', german: 'Gelb' },
+                        { name: 'Grün', hex: '#95E1D3', german: 'Grün' },
+                        { name: 'Cyan', hex: '#4ECDC4', german: 'Cyan' },
+                        { name: 'Blau', hex: '#6C5CE7', german: 'Blau' },
+                        { name: 'Lila', hex: '#C7B3E5', german: 'Lila' },
+                        { name: 'Rosa', hex: '#FDB1D6', german: 'Rosa' }
+                    ],
+                    3: [
+                        { name: 'Hell Rot', hex: '#FF9999', german: 'Hell Rot' },
+                        { name: 'Dunkel Rot', hex: '#CC0000', german: 'Dunkel Rot' },
+                        { name: 'Hell Blau', hex: '#99CCFF', german: 'Hell Blau' },
+                        { name: 'Dunkel Blau', hex: '#0066CC', german: 'Dunkel Blau' },
+                        { name: 'Hell Grün', hex: '#99FF99', german: 'Hell Grün' },
+                        { name: 'Dunkel Grün', hex: '#006600', german: 'Dunkel Grün' },
+                        { name: 'Hell Gelb', hex: '#FFFF99', german: 'Hell Gelb' },
+                        { name: 'Dunkel Gelb', hex: '#CCCC00', german: 'Dunkel Gelb' }
+                    ]
+                };
+                return colorSets[this.difficulty];
+            }
+
+            startGame() {
+                this.colors = this.getColors();
+                this.sorted = 0;
+                this.objects = [];
+
+                // Create objects (each color appears 3 times)
+                this.colors.forEach(color => {
+                    for (let i = 0; i < 3; i++) {
+                        this.objects.push({
+                            id: `${color.name}_${i}`,
+                            color: color.hex,
+                            correctBin: color.name,
+                            placed: false
+                        });
+                    }
+                });
+
+                this.objects = shuffleArray(this.objects);
+
+                this.renderGame();
+
+                document.getElementById('totalCount').textContent = this.objects.length;
+                document.getElementById('sortedCount').textContent = '0';
+                document.getElementById('completeMessage').style.display = 'none';
+            }
+
+            renderGame() {
+                // Render draggable objects
+                const objectsArea = document.getElementById('objectsArea');
+                objectsArea.innerHTML = '';
+
+                this.objects.filter(obj => !obj.placed).forEach(obj => {
+                    const objEl = document.createElement('div');
+                    objEl.className = 'draggable-object';
+                    objEl.style.backgroundColor = obj.color;
+                    objEl.draggable = true;
+                    objEl.dataset.id = obj.id;
+                    objEl.innerHTML = '●';
+
+                    objEl.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.target.classList.add('dragging');
+                    });
+
+                    objEl.addEventListener('dragend', () => {
+                        objEl.classList.remove('dragging');
+                    });
+
+                    objectsArea.appendChild(objEl);
+                });
+
+                // Render color bins
+                const containersArea = document.getElementById('containersArea');
+                containersArea.innerHTML = '';
+
+                this.colors.forEach(color => {
+                    const binEl = document.createElement('div');
+                    binEl.className = 'color-bin';
+                    binEl.style.borderColor = color.hex;
+                    binEl.style.backgroundColor = `${color.hex}15`;
+                    binEl.draggable = true;
+                    binEl.dataset.color = color.name;
+
+                    const count = this.objects.filter(obj => obj.correctBin === color.name && obj.placed).length;
+                    binEl.innerHTML = `
+                        <div style="text-align: center;">
+                            <div style="font-size: 2em; margin-bottom: 5px;">🎨</div>
+                            <div class="color-bin-label">${color.german}</div>
+                            ${count > 0 ? `<div class="items-count">${count}</div>` : ''}
+                        </div>
+                    `;
+
+                    binEl.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                        binEl.classList.add('highlight');
+                    });
+
+                    binEl.addEventListener('dragleave', () => {
+                        binEl.classList.remove('highlight');
+                    });
+
+                    binEl.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        binEl.classList.remove('highlight');
+                        const objId = e.dataTransfer.getData('text/html');
+                        this.handleDrop(objId, color.name, binEl);
+                    });
+
+                    // Also support touch events
+                    binEl.addEventListener('dragenter', () => {
+                        binEl.classList.add('highlight');
+                    });
+
+                    containersArea.appendChild(binEl);
+                });
+            }
+
+            handleDrop(objId, binColor, binEl) {
+                // Find dragging object
+                const draggedEl = document.querySelector('.draggable-object.dragging');
+                if (!draggedEl) return;
+
+                const objId2 = draggedEl.dataset.id;
+                const obj = this.objects.find(o => o.id === objId2);
+
+                if (obj && obj.correctBin === binColor) {
+                    // Correct!
+                    obj.placed = true;
+                    this.sorted++;
+
+                    triggerReward(binEl);
+
+                    // Play sound
+                    this.playCorrectSound();
+
+                    document.getElementById('sortedCount').textContent = this.sorted;
+
+                    this.renderGame();
+
+                    if (this.sorted === this.objects.length) {
+                        this.completeGame();
+                    }
+                } else {
+                    // Wrong
+                    draggedEl.style.animation = 'shake 0.4s ease';
+                    setTimeout(() => draggedEl.style.animation = '', 400);
+                }
+            }
+
+            completeGame() {
+                document.getElementById('completeMessage').style.display = 'inline';
+                document.getElementById('objectsArea').innerHTML = '<div style="text-align: center; font-size: 3em; margin: 20px;">🎉</div>';
+
+                triggerReward(document.querySelector('.game-board'));
+
+                if (this.sessionTimer) {
+                    this.sessionTimer.destroy();
+                }
+            }
+
+            playCorrectSound() {
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    oscillator.frequency.value = 600;
+                    oscillator.type = 'sine';
+
+                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                } catch (e) {
+                    // Fallback
+                }
+            }
+
+            startSessionTimer() {
+                const sessionLength = GAMES.patternRecognition?.sessionLengthMinutes || 12;
+                this.sessionTimer = new SessionTimer(sessionLength);
+                this.sessionTimer.start();
+            }
+        }
+
+        // Add shake animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-10px); }
+                75% { transform: translateX(10px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Start game when page loads
+        window.addEventListener('load', () => {
+            new ColorSortingGame();
+        });
+    </script>
+</body>
+
+</html>

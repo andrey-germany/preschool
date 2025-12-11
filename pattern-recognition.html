@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muster Erkennungs Spiel - ABC Lernspiele</title>
+
+    <meta name="description"
+        content="Erkenne und vervollständige Buchstaben- und Wortmuster. Trainiert logisches Denken und Mustererkennung."
+        lang="de">
+    <meta name="description"
+        content="Recognize and complete letter and word patterns. Trains logical thinking and pattern recognition."
+        lang="en">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-size: 100% 100%;
+            transition: background 2s ease;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            min-width: 52px;
+            min-height: 52px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-button:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .pattern-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            min-height: 200px;
+        }
+
+        .pattern-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .pattern-series {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .pattern-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px 24px;
+            border-radius: 10px;
+            font-size: 1.3em;
+            font-weight: 600;
+            min-width: 70px;
+            min-height: 50px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            animation: slideIn 0.5s ease-out;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 6px;
+        }
+
+        .pattern-item.blank {
+            background: rgba(102, 126, 234, 0.2);
+            border: 3px dashed #667eea;
+            color: #667eea;
+            font-size: 2em;
+        }
+
+        .pattern-item.highlighted {
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .pattern-explanation {
+            font-size: 1em;
+            color: #666;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            font-style: italic;
+        }
+
+        #input-area {
+            margin: 30px 0;
+        }
+
+        #pattern-input {
+            font-size: 2em;
+            padding: 14px 12px;
+            width: 140px;
+            text-align: center;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 10px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            min-height: 50px;
+        }
+
+        #pattern-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
+        }
+
+        #pattern-input::placeholder {
+            color: #ccc;
+        }
+
+        #controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        button.control-btn {
+            padding: 12px 24px;
+            font-size: 1.05em;
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            min-width: 50px;
+            min-height: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 6px;
+        }
+
+        button.control-btn:hover {
+            background-color: #667eea;
+            color: white;
+        }
+
+        button.control-btn span {
+            font-size: 1.5em;
+            margin-right: 8px;
+        }
+
+        #instructions {
+            margin-top: 15px;
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 1.1em;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        #page-title {
+            margin-top: 20px;
+            color: white;
+            font-size: 1.8em;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats {
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1em;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+
+        #reward-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-size: 1.2em;
+            font-weight: 600;
+            min-height: 30px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .feedback.correct {
+            color: #4caf50;
+        }
+
+        .feedback.incorrect {
+            color: #ff6b6b;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .difficulty-indicator {
+            font-size: 0.9em;
+            color: #999;
+            margin-top: 10px;
+        }
+
+        .star {
+            color: #ffc107;
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 768px) {
+            .pattern-item {
+                font-size: 1.1em;
+                padding: 12px 15px;
+                min-width: 50px;
+            }
+
+            .pattern-series {
+                gap: 10px;
+            }
+
+            #page-title {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <a href="index.html" class="back-button" id="back-button">← Zurück zum Menü</a>
+
+        <div class="pattern-container">
+            <div class="pattern-label" id="pattern-label">Wortfamilie</div>
+
+            <div class="pattern-series" id="pattern-series">
+                <!-- Pattern items will be inserted here -->
+            </div>
+
+            <div class="pattern-explanation" id="pattern-explanation">
+                Erkenne das Muster und gebe das fehlende Wort ein.
+            </div>
+
+            <div class="difficulty-indicator" id="difficulty">
+                <span class="star">★</span> Schwierigkeit
+            </div>
+        </div>
+
+        <div id="input-area">
+            <input type="text" id="pattern-input" placeholder="?" autofocus>
+        </div>
+
+        <div id="controls">
+            <button class="control-btn" id="type-button">
+                <span id="type-icon">🔤</span> <span id="type-text">Wortfamilien</span>
+            </button>
+            <button class="control-btn" id="hint-button">
+                <span>💡</span> <span id="hint-text">Tipp</span>
+            </button>
+        </div>
+
+        <div id="feedback" class="feedback"></div>
+
+        <p id="instructions"></p>
+        <h1 id="page-title"></h1>
+
+        <div class="stats" id="stats"></div>
+    </div>
+
+    <div id="reward-container"></div>
+
+    <script src="games.js"></script>
+    <script>
+        // Pattern types and data
+        const patternTypes = {
+            'rhymes': {
+                name: 'Wortfamilien (Reime)',
+                patterns: [
+                    { family: ['CAT', 'BAT', 'HAT', 'MAT', 'RAT', 'FAT'], answer: 'SAT' },
+                    { family: ['DOG', 'HOG', 'FOG', 'LOG', 'BOG', 'JOG'], answer: 'COG' },
+                    { family: ['SUN', 'RUN', 'BUN', 'FUN', 'GUN', 'NUN'], answer: 'PUN' },
+                    { family: ['BIKE', 'HIKE', 'LIKE', 'MIKE', 'PIKE', 'TIKE'], answer: 'DIKE' },
+                    { family: ['BALL', 'CALL', 'FALL', 'HALL', 'TALL', 'WALL'], answer: 'SMALL' },
+                    { family: ['RING', 'KING', 'SING', 'WING', 'THING', 'DING'], answer: 'PING' },
+                    { family: ['BEAR', 'CARE', 'DARE', 'FAIR', 'HAIR', 'PAIR'], answer: 'WEAR' },
+                    { family: ['JUMP', 'BUMP', 'DUMP', 'LUMP', 'PUMP', 'HUMP'], answer: 'THUMP' }
+                ],
+                explanation: 'Alle Wörter in dieser Familie reimen sich (gleiches Endsound)'
+            },
+            'morphology': {
+                name: 'Morphologie (Wortveränderungen)',
+                patterns: [
+                    { family: ['WALK', 'WALKS', 'WALKED', 'WALKING', 'WALKER'], answer: 'WALKED' },
+                    { family: ['PLAY', 'PLAYS', 'PLAYED', 'PLAYING', 'PLAYER'], answer: 'PLAYING' },
+                    { family: ['JUMP', 'JUMPS', 'JUMPED', 'JUMPING', 'JUMPER'], answer: 'JUMPED' },
+                    { family: ['HAPPY', 'HAPPIER', 'HAPPIEST', 'HAPPILY', 'UNHAPPY'], answer: 'HAPPIEST' },
+                    { family: ['TEACH', 'TEACHES', 'TAUGHT', 'TEACHING', 'TEACHER'], answer: 'TEACHING' }
+                ],
+                explanation: 'Das Wort verändert sich durch Zusätze oder Änderungen (Zeitform, Vergleich)'
+            }
+        };
+
+        // Game state
+        let currentPatternType = 'rhymes';
+        let currentPatternIndex = 0;
+        let patternsCorrect = 0;
+        let patternsAttempted = 0;
+        let difficulty = 1;
+
+        // DOM elements
+        const patternSeries = document.getElementById('pattern-series');
+        const patternInput = document.getElementById('pattern-input');
+        const typeButton = document.getElementById('type-button');
+        const hintButton = document.getElementById('hint-button');
+        const instructionsElement = document.getElementById('instructions');
+        const pageTitleElement = document.getElementById('page-title');
+        const statsElement = document.getElementById('stats');
+        const feedbackElement = document.getElementById('feedback');
+        const backButton = document.getElementById('back-button');
+        const patternLabel = document.getElementById('pattern-label');
+        const patternExplanation = document.getElementById('pattern-explanation');
+        const difficultyElement = document.getElementById('difficulty');
+
+        // Localize interface
+        setPageLanguage();
+        const lang = navigator.language.split('-')[0];
+
+        function initializeLocalization() {
+            if (lang === 'de') {
+                instructionsElement.textContent = 'Erkenne das Muster und gebe das fehlende Wort ein. Der Platzhalter (?) zeigt an, welches Wort fehlt.';
+                pageTitleElement.textContent = 'Muster Erkennungs Spiel';
+                backButton.textContent = '← Zurück zum Menü';
+            } else {
+                instructionsElement.textContent = 'Recognize the pattern and enter the missing word. The placeholder (?) shows which word is missing.';
+                pageTitleElement.textContent = 'Pattern Recognition Game';
+                backButton.textContent = '← Back to Menu';
+            }
+        }
+
+        initializeLocalization();
+
+        // Get current patterns
+        function getCurrentPatterns() {
+            return patternTypes[currentPatternType].patterns;
+        }
+
+        // Display pattern
+        function displayPattern() {
+            const patterns = getCurrentPatterns();
+            const currentPattern = patterns[currentPatternIndex];
+
+            patternLabel.textContent = patternTypes[currentPatternType].name;
+            patternExplanation.textContent = patternTypes[currentPatternType].explanation;
+
+            // Create pattern display
+            patternSeries.innerHTML = '';
+
+            // Randomly choose which position is blank
+            const blankPosition = Math.floor(Math.random() * currentPattern.family.length);
+
+            currentPattern.family.forEach((word, index) => {
+                const item = document.createElement('div');
+                item.className = 'pattern-item';
+
+                if (index === blankPosition) {
+                    item.classList.add('blank', 'highlighted');
+                    item.textContent = '?';
+                } else {
+                    item.textContent = word;
+                }
+
+                patternSeries.appendChild(item);
+            });
+
+            // Update difficulty
+            const stars = '★'.repeat(difficulty) + '☆'.repeat(3 - difficulty);
+            difficultyElement.innerHTML = `<span class="star">${stars}</span> Schwierigkeit ${difficulty}/3`;
+
+            patternInput.value = '';
+            patternInput.focus();
+            feedbackElement.textContent = '';
+        }
+
+        // Input handler
+        patternInput.addEventListener('input', (event) => {
+            let typed = event.target.value.toUpperCase();
+
+            if (typed === '') {
+                return;
+            }
+
+            const patterns = getCurrentPatterns();
+            const currentPattern = patterns[currentPatternIndex];
+            const expectedAnswer = currentPattern.answer.toUpperCase();
+
+            if (typed === expectedAnswer) {
+                patternsAttempted++;
+                patternsCorrect++;
+
+                triggerReward(patternSeries);
+                setRandomGradientBackground();
+
+                feedbackElement.textContent = '✓ Richtig!';
+                feedbackElement.classList.add('correct');
+                feedbackElement.classList.remove('incorrect');
+
+                // Increase difficulty occasionally
+                if (patternsCorrect % 3 === 0 && difficulty < 3) {
+                    difficulty++;
+                }
+
+                currentPatternIndex++;
+                if (currentPatternIndex >= patterns.length) {
+                    currentPatternIndex = 0;
+                }
+
+                setTimeout(() => {
+                    displayPattern();
+                }, 1500);
+
+                updateStats();
+            } else if (typed.length === expectedAnswer.length || event.target.value.includes(' ')) {
+                patternsAttempted++;
+                feedbackElement.textContent = '✗ Versuche es nochmal';
+                feedbackElement.classList.add('incorrect');
+                feedbackElement.classList.remove('correct');
+                patternInput.value = '';
+            }
+        });
+
+        // Type toggle
+        typeButton.addEventListener('click', () => {
+            currentPatternType = currentPatternType === 'rhymes' ? 'morphology' : 'rhymes';
+            currentPatternIndex = 0;
+            patternsCorrect = 0;
+            patternsAttempted = 0;
+            difficulty = 1;
+            displayPattern();
+            updateTypeButton();
+            updateStats();
+        });
+
+        // Hint button
+        hintButton.addEventListener('click', () => {
+            const patterns = getCurrentPatterns();
+            const currentPattern = patterns[currentPatternIndex];
+            const answer = currentPattern.answer;
+            const hint = answer.charAt(0) + '***';
+            feedbackElement.textContent = `Tipp: ${hint}`;
+            feedbackElement.classList.remove('incorrect', 'correct');
+        });
+
+        // Update type button UI
+        function updateTypeButton() {
+            const typeIcon = document.getElementById('type-icon');
+            const typeText = document.getElementById('type-text');
+
+            if (currentPatternType === 'rhymes') {
+                typeIcon.textContent = '🔤';
+                typeText.textContent = 'Wortfamilien';
+            } else {
+                typeIcon.textContent = '🔄';
+                typeText.textContent = 'Morphologie';
+            }
+        }
+
+        // Update stats
+        function updateStats() {
+            const accuracy = patternsAttempted > 0 ? Math.round((patternsCorrect / patternsAttempted) * 100) : 0;
+            statsElement.textContent = `Versuche: ${patternsAttempted} | Richtig: ${patternsCorrect} | Genauigkeit: ${accuracy}%`;
+        }
+
+        // Initialize
+        displayPattern();
+        updateTypeButton();
+        updateStats();
+        setRandomGradientBackground();
+    </script>
+
+</body>
+
+</html>

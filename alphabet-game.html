@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alphabet Übung - ABC Lernspiele</title>
+
+    <meta name="description"
+        content="Interaktive Lernseite zum spielerischen Üben des Alphabets in Groß- und Kleinbuchstaben sowie in alphabetischer oder zufälliger Reihenfolge."
+        lang="de">
+    <meta name="description"
+        content="Interactive learning page to playfully practice the alphabet in uppercase and lowercase letters and in alphabetical or random order."
+        lang="en">
+    <meta name="keywords"
+        content="Alphabet lernen, ABC üben, Buchstaben lernen, Großbuchstaben, Kleinbuchstaben, Kinder lernen, Lernspiel"
+        lang="de">
+    <meta name="keywords"
+        content="learn alphabet, practice ABC, learn letters, uppercase letters, lowercase letters, kids learning, educational game"
+        lang="en">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(45deg, #fbc2eb, #a6c1ee);
+            background-size: 100% 100%;
+            transition: background 2s ease;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #007bff;
+            color: #007bff;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            min-width: 52px;
+            min-height: 52px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-button:hover {
+            background: #007bff;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        #letter-container {
+            margin-bottom: 30px;
+        }
+
+        #current-letter {
+            font-size: 10em;
+            font-weight: bold;
+            color: #333;
+            min-height: 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .letter-hidden {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        #input-area {
+            margin-bottom: 20px;
+        }
+
+        #letter-input {
+            font-size: 2em;
+            padding: 14px 12px;
+            width: 90px;
+            text-align: center;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+            transition: border-color 0.3s ease;
+            position: relative;
+            z-index: 1;
+            min-height: 50px;
+        }
+
+        #input-area:focus-within #letter-input {
+            border-color: #007bff;
+        }
+
+        #reward-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        #controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        #case-toggle-button,
+        #order-toggle-button {
+            padding: 12px 24px;
+            font-size: 1.05em;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
+            min-height: 50px;
+            margin: 6px;
+        }
+
+        #case-toggle-button:hover,
+        #order-toggle-button:hover {
+            background-color: #0056b3;
+        }
+
+        #case-toggle-button span,
+        #order-toggle-button span {
+            font-size: 2.5em;
+            line-height: 1;
+            display: none;
+        }
+
+        #case-toggle-button span.active-span,
+        #order-toggle-button span.active-span {
+            display: inline-block;
+        }
+
+        #instructions {
+            margin-top: 10px;
+            color: #555;
+            font-size: 1.2em;
+        }
+
+        #page-title {
+            margin-top: 5px;
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            #current-letter {
+                font-size: 6em;
+            }
+
+            .page-title {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <a href="index.html" class="back-button" id="back-button">← Zurück zum Menü</a>
+
+        <div id="letter-container">
+            <div id="current-letter"></div>
+        </div>
+
+        <div id="input-area">
+            <input type="text" id="letter-input" maxlength="1" autofocus>
+        </div>
+
+        <div id="reward-container"></div>
+
+        <div id="controls">
+            <button id="case-toggle-button" aria-label="Groß- und Kleinbuchstaben umschalten">
+                <span id="span-uppercase">A</span>
+                <span id="span-lowercase">a</span>
+            </button>
+            <button id="order-toggle-button" aria-label="Reihenfolge umschalten">
+                <span id="span-alphabetical">📜</span>
+                <span id="span-random">🎲</span>
+            </button>
+        </div>
+
+        <p id="instructions"></p>
+        <h1 id="page-title"></h1>
+    </div>
+
+    <script src="games.js"></script>
+    <script>
+        // Game state
+        const uppercaseAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const lowercaseAlphabet = 'abcdefghijklmnopqrstuvwxyz';
+
+        let currentLetters = [];
+        let currentIndex = 0;
+        let isUppercase = true;
+        let isAlphabeticalOrder = true;
+
+        // DOM elements
+        const currentLetterDiv = document.getElementById('current-letter');
+        const letterInput = document.getElementById('letter-input');
+        const caseToggleButton = document.getElementById('case-toggle-button');
+        const orderToggleButton = document.getElementById('order-toggle-button');
+        const spanUppercase = document.getElementById('span-uppercase');
+        const spanLowercase = document.getElementById('span-lowercase');
+        const spanAlphabetical = document.getElementById('span-alphabetical');
+        const spanRandom = document.getElementById('span-random');
+        const instructionsElement = document.getElementById('instructions');
+        const pageTitleElement = document.getElementById('page-title');
+        const backButton = document.getElementById('back-button');
+
+        // Localize interface
+        setPageLanguage();
+        const strings = getLocalizedStrings();
+        instructionsElement.textContent = strings.instruction;
+        pageTitleElement.textContent = strings.pageTitle;
+        backButton.textContent = '← ' + strings.backToHub;
+
+        // Display letter
+        function displayLetter() {
+            if (currentLetters.length === 0) {
+                console.error("Keine Buchstaben zum Anzeigen!");
+                currentLetterDiv.textContent = "Fehler";
+                return;
+            }
+
+            const letter = currentLetters[currentIndex];
+            currentLetterDiv.classList.add('letter-hidden');
+
+            setTimeout(() => {
+                currentLetterDiv.textContent = letter;
+                currentLetterDiv.classList.remove('letter-hidden');
+            }, 100);
+
+            letterInput.value = '';
+            letterInput.focus();
+        }
+
+        // Update case button UI
+        function updateCaseButtonUI() {
+            spanUppercase.classList.remove('active-span');
+            spanLowercase.classList.remove('active-span');
+
+            if (isUppercase) {
+                spanUppercase.classList.add('active-span');
+                caseToggleButton.setAttribute('aria-label', 'Aktuell: Großbuchstaben. Klick für Kleinbuchstaben.');
+            } else {
+                spanLowercase.classList.add('active-span');
+                caseToggleButton.setAttribute('aria-label', 'Aktuell: Kleinbuchstaben. Klick für Großbuchstaben.');
+            }
+        }
+
+        // Update order button UI
+        function updateOrderButtonUI() {
+            spanAlphabetical.classList.remove('active-span');
+            spanRandom.classList.remove('active-span');
+
+            if (isAlphabeticalOrder) {
+                spanAlphabetical.classList.add('active-span');
+                orderToggleButton.setAttribute('aria-label', 'Aktuell: Alphabetische Reihenfolge. Klick für Zufällig.');
+            } else {
+                spanRandom.classList.add('active-span');
+                orderToggleButton.setAttribute('aria-label', 'Aktuell: Zufällige Reihenfolge. Klick für Alphabetisch.');
+            }
+        }
+
+        // Update letter list and display
+        function updateLetterListAndDisplay() {
+            const baseAlphabet = isUppercase ? uppercaseAlphabet : lowercaseAlphabet;
+            const alphabetArray = baseAlphabet.split('');
+
+            if (isAlphabeticalOrder) {
+                currentLetters = alphabetArray;
+            } else {
+                currentLetters = shuffleArray(alphabetArray);
+            }
+
+            currentIndex = 0;
+            displayLetter();
+        }
+
+        // Toggle case
+        function toggleCase() {
+            isUppercase = !isUppercase;
+            updateCaseButtonUI();
+            updateLetterListAndDisplay();
+        }
+
+        // Toggle order
+        function toggleOrder() {
+            isAlphabeticalOrder = !isAlphabeticalOrder;
+            updateOrderButtonUI();
+            updateLetterListAndDisplay();
+        }
+
+        // Handle letter input
+        letterInput.addEventListener('input', function (event) {
+            let typedChar = event.target.value;
+
+            if (typedChar.length > 1) {
+                letterInput.value = '';
+                return;
+            }
+
+            if (typedChar !== '') {
+                const expectedChar = currentLetters[currentIndex];
+                const typedCharCase = isUppercase ? typedChar.toUpperCase() : typedChar.toLowerCase();
+                const expectedCharCase = isUppercase ? expectedChar.toUpperCase() : expectedChar.toLowerCase();
+
+                if (typedCharCase === expectedCharCase) {
+                    triggerReward(currentLetterDiv);
+                    setRandomGradientBackground();
+
+                    currentIndex++;
+                    if (currentIndex >= currentLetters.length) {
+                        currentIndex = 0;
+                    }
+
+                    setTimeout(displayLetter, 1000);
+                } else {
+                    letterInput.value = '';
+                }
+            }
+        });
+
+        // Add event listeners
+        caseToggleButton.addEventListener('click', toggleCase);
+        orderToggleButton.addEventListener('click', toggleOrder);
+
+        // Initialize
+        updateCaseButtonUI();
+        updateOrderButtonUI();
+        updateLetterListAndDisplay();
+        setRandomGradientBackground();
+    </script>
+
+</body>
+
+</html>

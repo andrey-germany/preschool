@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geschichte Schreiben - ABC Lernspiele</title>
+
+    <meta name="description"
+        content="Erstelle deine eigene Geschichte mit Wörtern, die du gelernt hast. Kreatives Schreiben ab Tag 1!"
+        lang="de">
+    <meta name="description"
+        content="Create your own story with words you've learned. Creative writing from day one!"
+        lang="en">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background-size: 100% 100%;
+            transition: background 2s ease;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            overflow-y: auto;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #f5576c;
+            color: #f5576c;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            min-width: 52px;
+            min-height: 52px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-button:hover {
+            background: #f5576c;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .story-phase {
+            display: none;
+        }
+
+        .story-phase.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Phase 1: Mad Libs Input */
+        .madlibs-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            min-height: 200px;
+        }
+
+        .madlibs-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .template-text {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #333;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .blank-input-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin: 5px 0;
+        }
+
+        .blank-input-group label {
+            font-size: 0.85em;
+            color: #666;
+            font-style: italic;
+        }
+
+        .blank-input-group input {
+            padding: 10px 12px;
+            border: 2px solid #f5576c;
+            border-radius: 5px;
+            font-size: 1em;
+            min-width: 110px;
+            min-height: 40px;
+        }
+
+        .blank-input-group input:focus {
+            outline: none;
+            border-color: #f5576c;
+            box-shadow: 0 0 10px rgba(245, 87, 108, 0.3);
+        }
+
+        /* Phase 2: Story Display */
+        .story-display {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            min-height: 300px;
+        }
+
+        .story-title {
+            font-size: 2em;
+            font-weight: bold;
+            color: #f5576c;
+            margin-bottom: 20px;
+        }
+
+        .generated-story {
+            font-size: 1.1em;
+            line-height: 1.8;
+            text-align: left;
+            color: #333;
+            margin: 30px 0;
+            font-family: 'Georgia', serif;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #f5576c;
+        }
+
+        .story-highlight {
+            color: #f5576c;
+            font-weight: 600;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+            min-width: 50px;
+            min-height: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 6px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #f5576c;
+            border: 2px solid #f5576c;
+            box-shadow: none;
+        }
+
+        button.secondary:hover {
+            background: #f5576c;
+            color: white;
+        }
+
+        #instructions {
+            margin-top: 15px;
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 1.1em;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        #page-title {
+            margin-top: 20px;
+            color: white;
+            font-size: 1.8em;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .story-stat {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1em;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        #reward-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .celebration {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .celebration-emoji {
+            font-size: 4em;
+            margin: 15px 0;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .template-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .template-option {
+            padding: 15px;
+            background: rgba(245, 87, 108, 0.1);
+            border: 2px solid #f5576c;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .template-option:hover {
+            background: rgba(245, 87, 108, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .template-option.selected {
+            background: #f5576c;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .madlibs-container,
+            .story-display {
+                padding: 25px;
+            }
+
+            .template-text,
+            .generated-story {
+                font-size: 1em;
+            }
+
+            #page-title {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <a href="index.html" class="back-button" id="back-button">← Zurück zum Menü</a>
+
+        <!-- Phase 1: Template Selection & Mad Libs Input -->
+        <div id="phase-selection" class="story-phase active">
+            <div class="madlibs-container">
+                <div class="madlibs-label" id="select-label">Wähle eine Geschichte</div>
+                <div class="template-selector" id="template-selector"></div>
+            </div>
+        </div>
+
+        <!-- Phase 2: Mad Libs Input -->
+        <div id="phase-input" class="story-phase">
+            <div class="madlibs-container">
+                <div class="madlibs-label" id="input-label">Fülle die Lücken aus</div>
+                <div class="template-text" id="template-display"></div>
+                <div class="controls">
+                    <button id="generate-btn">📖 Geschichte generieren</button>
+                    <button id="back-btn" class="secondary">← Zurück</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 3: Story Display & Celebration -->
+        <div id="phase-display" class="story-phase">
+            <div class="story-display">
+                <div class="story-title" id="story-title">Deine Geschichte</div>
+                <div class="celebration">
+                    <div class="celebration-emoji">📖✨</div>
+                </div>
+                <div class="generated-story" id="generated-story"></div>
+                <div class="controls">
+                    <button id="read-btn">🔊 Vorlesen</button>
+                    <button id="new-story-btn">📝 Neue Geschichte</button>
+                </div>
+            </div>
+        </div>
+
+        <p id="instructions"></p>
+        <h1 id="page-title"></h1>
+        <div class="story-stat" id="stats"></div>
+    </div>
+
+    <div id="reward-container"></div>
+
+    <script src="games.js"></script>
+    <script>
+        // Story Templates (Mad Libs style)
+        const storyTemplates = [
+            {
+                id: 'adventure',
+                title: '🏰 Das große Abenteuer',
+                template: `Es war einmal ein [ADJEKTIV] [TIER], das in einem [PLACE] lebte. Eines Tages beschloss es, ein großes [ABENTEUER] zu erleben. Es traf [PERSON] und zusammen gingen sie zum [PLACE]. Unterwegs fanden sie einen [GEGENSTAND] und beschlossen, damit einen [NOUN] zu bauen. Am Ende waren sie sehr [ADJEKTIV] und lebten glücklich!`,
+                blanks: [
+                    { name: 'ADJEKTIV', label: 'Adjektiv', hint: 'z.B. mutig, klein, lustig' },
+                    { name: 'TIER', label: 'Tier', hint: 'z.B. Hund, Katze, Vogel' },
+                    { name: 'PLACE', label: 'Ort (1)', hint: 'z.B. Wald, Schloss, Berg' },
+                    { name: 'ABENTEUER', label: 'Abenteuer', hint: 'z.B. Reise, Schatz, Suche' },
+                    { name: 'PERSON', label: 'Person', hint: 'z.B. Prinzessin, König, Freund' },
+                    { name: 'PLACE', label: 'Ort (2)', hint: 'z.B. Strand, Haus, Grotte' },
+                    { name: 'GEGENSTAND', label: 'Gegenstand', hint: 'z.B. Buch, Schwert, Schlüssel' },
+                    { name: 'NOUN', label: 'Ding', hint: 'z.B. Haus, Brücke, Schiff' },
+                    { name: 'ADJEKTIV', label: 'Gefühl', hint: 'z.B. glücklich, stolz, aufgeregt' }
+                ]
+            },
+            {
+                id: 'mystery',
+                title: '🔍 Das Geheimnis',
+                template: `Im [PLACE] geschah etwas Seltsames. Ein [ADJEKTIV] [OBJECT] verschwand! Die [ADJEKTIV] [PERSON] beschloss, den Fall zu lösen. Sie suchte im [PLACE] und fand eine [OBJECT]. Mit Hilfe von [PERSON] entdeckte sie den [SCHURKE]. Er hatte den [OBJECT] versteckt! [PERSON] war so erleichtert und dankte ihnen beide herzlich.`,
+                blanks: [
+                    { name: 'PLACE', label: 'Ort (1)', hint: 'z.B. Bibliothek, Haus, Stadt' },
+                    { name: 'ADJEKTIV', label: 'Adjektiv (1)', hint: 'z.B. wertvolles, magisches' },
+                    { name: 'OBJECT', label: 'Ding (1)', hint: 'z.B. Buch, Juwel, Ring' },
+                    { name: 'ADJEKTIV', label: 'Adjektiv (2)', hint: 'z.B. mutige, kluge' },
+                    { name: 'PERSON', label: 'Person (1)', hint: 'z.B. Detektiv, Mädchen, Junge' },
+                    { name: 'PLACE', label: 'Ort (2)', hint: 'z.B. Keller, Garten, Dachboden' },
+                    { name: 'OBJECT', label: 'Ding (2)', hint: 'z.B. Hinweis, Karte, Note' },
+                    { name: 'PERSON', label: 'Person (2)', hint: 'z.B. Freund, Bruder, Detektiv' },
+                    { name: 'SCHURKE', label: 'Schurke', hint: 'z.B. Dieb, Lügner, Zauberer' },
+                    { name: 'OBJECT', label: 'Ding (3)', hint: 'Das verschwundene Objekt' },
+                    { name: 'PERSON', label: 'Person (3)', hint: 'Die dankbare Person' }
+                ]
+            },
+            {
+                id: 'silly',
+                title: '😄 Die lustige Geschichte',
+                template: `Ein [ADJEKTIV] [TIER] wachte auf und beschloss, [AKTION] zu machen. Es zog sich [KLEIDUNG] an und ging zum [PLACE]. Dort traf es [NUMBER] [TIERE] die alle [ADJEKTIV] waren. Sie begannen alle zusammen [AKTION] zu machen! Es war so lustig, dass sie alle [EMOTION] waren. Am Ende [ENDEAKTION]!`,
+                blanks: [
+                    { name: 'ADJEKTIV', label: 'Adjektiv (1)', hint: 'z.B. verrückt, dumm, lustig' },
+                    { name: 'TIER', label: 'Tier', hint: 'z.B. Schwein, Ente, Kuh' },
+                    { name: 'AKTION', label: 'Aktion (1)', hint: 'z.B. tanzen, singen, rennen' },
+                    { name: 'KLEIDUNG', label: 'Kleidung', hint: 'z.B. Tutu, Zylinder, Handschuhe' },
+                    { name: 'PLACE', label: 'Ort', hint: 'z.B. Zoo, Park, Kino' },
+                    { name: 'NUMBER', label: 'Zahl', hint: 'z.B. 3, 10, 100' },
+                    { name: 'TIERE', label: 'Tiere (Plural)', hint: 'z.B. Affen, Frösche, Bären' },
+                    { name: 'ADJEKTIV', label: 'Adjektiv (2)', hint: 'z.B. grün, riesig, winzig' },
+                    { name: 'AKTION', label: 'Aktion (2)', hint: 'z.B. hüpfen, jodeln, fliegen' },
+                    { name: 'EMOTION', label: 'Emotion', hint: 'z.B. lachend, glücklich, brüllend' },
+                    { name: 'ENDEAKTION', label: 'Ende-Aktion', hint: 'z.B. sprangen sie herum, flogen weg' }
+                ]
+            }
+        ];
+
+        // Game state
+        let currentTemplate = null;
+        let currentPhase = 'selection';
+        let userInputs = {};
+        let storiesCreated = 0;
+
+        // DOM elements
+        const phaseSelection = document.getElementById('phase-selection');
+        const phaseInput = document.getElementById('phase-input');
+        const phaseDisplay = document.getElementById('phase-display');
+        const templateSelector = document.getElementById('template-selector');
+        const templateDisplay = document.getElementById('template-display');
+        const generatedStoryDiv = document.getElementById('generated-story');
+        const generateBtn = document.getElementById('generate-btn');
+        const backBtn = document.getElementById('back-btn');
+        const readBtn = document.getElementById('read-btn');
+        const newStoryBtn = document.getElementById('new-story-btn');
+        const instructionsElement = document.getElementById('instructions');
+        const pageTitleElement = document.getElementById('page-title');
+        const statsElement = document.getElementById('stats');
+        const backButton = document.getElementById('back-button');
+        const storyTitle = document.getElementById('story-title');
+
+        // Localize interface
+        setPageLanguage();
+        const lang = navigator.language.split('-')[0];
+
+        function initializeLocalization() {
+            if (lang === 'de') {
+                instructionsElement.textContent = 'Wähle eine Geschichte, fülle die Lücken aus und lasse deine Kreativität walten!';
+                pageTitleElement.textContent = 'Geschichte Schreiben';
+                backButton.textContent = '← Zurück zum Menü';
+            } else {
+                instructionsElement.textContent = 'Choose a story, fill in the blanks, and let your creativity shine!';
+                pageTitleElement.textContent = 'Story Builder';
+                backButton.textContent = '← Back to Menu';
+            }
+        }
+
+        initializeLocalization();
+
+        // Phase 1: Show template selection
+        function showPhase(phase) {
+            phaseSelection.classList.remove('active');
+            phaseInput.classList.remove('active');
+            phaseDisplay.classList.remove('active');
+
+            if (phase === 'selection') {
+                phaseSelection.classList.add('active');
+            } else if (phase === 'input') {
+                phaseInput.classList.add('active');
+            } else if (phase === 'display') {
+                phaseDisplay.classList.add('active');
+            }
+
+            currentPhase = phase;
+        }
+
+        // Create template selector buttons
+        function initializeTemplateSelector() {
+            templateSelector.innerHTML = '';
+            storyTemplates.forEach(template => {
+                const btn = document.createElement('button');
+                btn.className = 'template-option';
+                btn.innerHTML = `${template.title}`;
+                btn.addEventListener('click', () => selectTemplate(template));
+                templateSelector.appendChild(btn);
+            });
+        }
+
+        // Select template and move to input phase
+        function selectTemplate(template) {
+            currentTemplate = template;
+            userInputs = {};
+            renderMadLibsForm();
+            showPhase('input');
+        }
+
+        // Render Mad Libs form
+        function renderMadLibsForm() {
+            templateDisplay.innerHTML = '';
+
+            // Group blanks by their placeholder
+            const blankMap = {};
+            currentTemplate.blanks.forEach((blank, index) => {
+                const key = `${blank.name}`;
+                if (!blankMap[key]) {
+                    blankMap[key] = [];
+                }
+                blankMap[key].push(blank);
+            });
+
+            // Create template with input fields
+            let htmlContent = `<div style="text-align: left; margin: 20px 0;">`;
+
+            currentTemplate.blanks.forEach((blank, index) => {
+                const inputId = `blank-${index}`;
+                htmlContent += `
+                    <div class="blank-input-group">
+                        <label for="${inputId}">${blank.label}:</label>
+                        <input
+                            type="text"
+                            id="${inputId}"
+                            placeholder="${blank.hint}"
+                            data-blank-name="${blank.name}"
+                            data-blank-index="${index}"
+                            autocomplete="off"
+                        >
+                    </div>
+                `;
+            });
+
+            htmlContent += `</div>`;
+            templateDisplay.innerHTML = htmlContent;
+
+            // Add change listeners to inputs
+            const inputs = templateDisplay.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const blankName = e.target.dataset.blankName;
+                    const blankIndex = e.target.dataset.blankIndex;
+                    userInputs[`${blankName}_${blankIndex}`] = e.target.value;
+                });
+            });
+
+            // Focus first input
+            inputs[0]?.focus();
+        }
+
+        // Generate story from template and inputs
+        function generateStory() {
+            let story = currentTemplate.template;
+
+            // Replace blanks with user inputs
+            currentTemplate.blanks.forEach((blank, index) => {
+                const userInput = userInputs[`${blank.name}_${index}`] || `[${blank.label}]`;
+                const regex = new RegExp(`\\[${blank.name}\\]`, 'g');
+                story = story.replace(regex, userInput);
+            });
+
+            generatedStoryDiv.innerHTML = story.replace(/\*\*([^*]+)\*\*/g, '<span class="story-highlight">$1</span>');
+            storyTitle.textContent = currentTemplate.title;
+            storiesCreated++;
+            updateStats();
+            showPhase('display');
+
+            // Trigger celebration
+            triggerReward(generatedStoryDiv);
+            setRandomGradientBackground();
+        }
+
+        // Text-to-speech for story
+        function readStory() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+
+                const storyText = generatedStoryDiv.textContent;
+                const utterance = new SpeechSynthesisUtterance(storyText);
+                utterance.lang = lang === 'de' ? 'de-DE' : 'en-US';
+                utterance.rate = 0.9;
+
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Event listeners
+        generateBtn.addEventListener('click', generateStory);
+        backBtn.addEventListener('click', () => {
+            showPhase('selection');
+        });
+        readBtn.addEventListener('click', readStory);
+        newStoryBtn.addEventListener('click', () => {
+            showPhase('selection');
+        });
+
+        // Update stats
+        function updateStats() {
+            statsElement.textContent = `Geschichten erstellt: ${storiesCreated}`;
+        }
+
+        // Initialize
+        initializeTemplateSelector();
+        setRandomGradientBackground();
+        updateStats();
+    </script>
+
+</body>
+
+</html>

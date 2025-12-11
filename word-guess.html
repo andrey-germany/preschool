@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wortratespiel - ABC Lernspiele</title>
+
+    <meta name="description"
+        content="Vervollständige Wörter mit fehlenden Buchstaben. Ein interaktives Wortratespiel zum Üben von Wortbildung."
+        lang="de">
+    <meta name="description"
+        content="Complete words with missing letters. An interactive word guessing game to practice word formation."
+        lang="en">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(45deg, #fbc2eb, #a6c1ee);
+            background-size: 100% 100%;
+            transition: background 2s ease;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .back-button {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #007bff;
+            color: #007bff;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            min-width: 52px;
+            min-height: 52px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-button:hover {
+            background: #007bff;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        #letter-container {
+            margin-bottom: 30px;
+        }
+
+        #current-word {
+            font-size: 5em;
+            font-weight: bold;
+            color: #333;
+            min-height: 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            letter-spacing: 0.15em;
+        }
+
+        .word-hidden {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        #input-area {
+            margin-bottom: 20px;
+        }
+
+        #word-input {
+            font-size: 2em;
+            padding: 14px 12px;
+            width: 120px;
+            text-align: center;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+            transition: border-color 0.3s ease;
+            position: relative;
+            z-index: 1;
+            min-height: 50px;
+        }
+
+        #input-area:focus-within #word-input {
+            border-color: #007bff;
+        }
+
+        #reward-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        #controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1.05em;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
+            min-height: 50px;
+            margin: 6px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button span {
+            font-size: 2.5em;
+            line-height: 1;
+        }
+
+        button span {
+            display: none;
+        }
+
+        button span.active-span {
+            display: inline-block;
+        }
+
+        #instructions {
+            margin-top: 10px;
+            color: #555;
+            font-size: 1.2em;
+        }
+
+        #page-title {
+            margin-top: 5px;
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            margin-top: 20px;
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        @media (max-width: 768px) {
+            #current-word {
+                font-size: 3em;
+            }
+
+            .page-title {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <a href="index.html" class="back-button" id="back-button">← Zurück zum Menü</a>
+
+        <div id="letter-container">
+            <div id="current-word"></div>
+        </div>
+
+        <div id="input-area">
+            <input type="text" id="word-input" maxlength="1" autofocus>
+        </div>
+
+        <div id="reward-container"></div>
+
+        <div id="controls">
+            <button id="order-toggle-button" aria-label="Reihenfolge umschalten">
+                <span id="span-alphabetical">📜</span>
+                <span id="span-random">🎲</span>
+            </button>
+        </div>
+
+        <p id="instructions"></p>
+        <h1 id="page-title"></h1>
+
+        <div class="stats" id="stats"></div>
+    </div>
+
+    <script src="games.js"></script>
+    <script>
+        // Game state
+        const wordList = ['OMA', 'OPA', 'MAMA', 'PAPA', 'VIOLA', 'ELEA', 'MILO', 'CLAUDIA', 'JOCHEN', 'ANDREAS', 'TONI', 'NICOLAI', 'TINA', 'AMADEUS', 'BIBI', 'PIPPI'];
+
+        let currentWord = '';
+        let currentWordBlanks = '';
+        let currentWordIndex = 0;
+        let isWordRandomOrder = false;
+        let shuffledWordIndices = [];
+        let wordsCompleted = 0;
+
+        // DOM elements
+        const currentWordDiv = document.getElementById('current-word');
+        const wordInput = document.getElementById('word-input');
+        const rewardContainer = document.getElementById('reward-container');
+        const orderToggleButton = document.getElementById('order-toggle-button');
+        const spanAlphabetical = document.getElementById('span-alphabetical');
+        const spanRandom = document.getElementById('span-random');
+        const instructionsElement = document.getElementById('instructions');
+        const pageTitleElement = document.getElementById('page-title');
+        const statsElement = document.getElementById('stats');
+        const backButton = document.getElementById('back-button');
+
+        // Localize interface
+        setPageLanguage();
+        const strings = getLocalizedStrings();
+        instructionsElement.textContent = strings.wordInstruction;
+        pageTitleElement.textContent = strings.wordGuess;
+        backButton.textContent = '← ' + strings.backToHub;
+
+        // Create word with random blanks
+        function createWordWithBlanks(word) {
+            const wordLength = word.length;
+            const numBlanks = Math.max(1, Math.floor(wordLength / 3));
+            const blankPositions = new Set();
+
+            while (blankPositions.size < numBlanks) {
+                const pos = Math.floor(Math.random() * wordLength);
+                blankPositions.add(pos);
+            }
+
+            let result = '';
+            for (let i = 0; i < wordLength; i++) {
+                result += blankPositions.has(i) ? '_' : word[i];
+            }
+            return result;
+        }
+
+        // Display word
+        function displayWord() {
+            if (isWordRandomOrder) {
+                if (shuffledWordIndices.length === 0) {
+                    shuffledWordIndices = shuffleArray([...Array(wordList.length).keys()]);
+                }
+                currentWordIndex = shuffledWordIndices.pop();
+            } else {
+                currentWordIndex = (currentWordIndex + 1) % wordList.length;
+            }
+
+            currentWord = wordList[currentWordIndex];
+            currentWordBlanks = createWordWithBlanks(currentWord);
+
+            currentWordDiv.classList.add('word-hidden');
+            setTimeout(() => {
+                currentWordDiv.textContent = currentWordBlanks;
+                currentWordDiv.classList.remove('word-hidden');
+            }, 100);
+
+            wordInput.value = '';
+            wordInput.focus();
+            updateStats();
+        }
+
+        // Update word order button UI
+        function updateWordOrderButtonUI() {
+            spanAlphabetical.classList.remove('active-span');
+            spanRandom.classList.remove('active-span');
+
+            if (isWordRandomOrder) {
+                spanRandom.classList.add('active-span');
+                orderToggleButton.setAttribute('aria-label', 'Aktuell: Zufällige Reihenfolge. Klick für Alphabetisch.');
+            } else {
+                spanAlphabetical.classList.add('active-span');
+                orderToggleButton.setAttribute('aria-label', 'Aktuell: Alphabetische Reihenfolge. Klick für Zufällig.');
+            }
+        }
+
+        // Update stats display
+        function updateStats() {
+            statsElement.textContent = `Wörter gelöst: ${wordsCompleted}`;
+        }
+
+        // Handle word input
+        wordInput.addEventListener('input', function (event) {
+            let typedChar = event.target.value;
+
+            if (typedChar.length > 1) {
+                wordInput.value = '';
+                return;
+            }
+
+            if (typedChar !== '') {
+                const blankIndex = currentWordBlanks.indexOf('_');
+                if (blankIndex !== -1) {
+                    const expectedChar = currentWord[blankIndex];
+                    const upperTypedChar = typedChar.toUpperCase();
+
+                    if (upperTypedChar === expectedChar) {
+                        currentWordBlanks = currentWordBlanks.substring(0, blankIndex) + expectedChar + currentWordBlanks.substring(blankIndex + 1);
+                        currentWordDiv.textContent = currentWordBlanks;
+                        wordInput.value = '';
+
+                        if (!currentWordBlanks.includes('_')) {
+                            triggerReward(currentWordDiv);
+                            setRandomGradientBackground();
+                            wordsCompleted++;
+                            setTimeout(displayWord, 1000);
+                        }
+                    } else {
+                        wordInput.value = '';
+                    }
+                }
+            }
+        });
+
+        // Add order toggle event listener
+        orderToggleButton.addEventListener('click', () => {
+            isWordRandomOrder = !isWordRandomOrder;
+            shuffledWordIndices = [];
+            updateWordOrderButtonUI();
+            displayWord();
+        });
+
+        // Initialize
+        updateWordOrderButtonUI();
+        displayWord();
+        setRandomGradientBackground();
+    </script>
+
+</body>
+
+</html>

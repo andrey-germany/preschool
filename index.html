@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABC Lernspiele - Interaktive Bildung für Kinder</title>
+
+    <meta name="description"
+        content="Entdecke eine Sammlung interaktiver Lernspiele zum Üben des Alphabets, Wörter verstehen und mehr. Spielerisches Lernen für Kinder."
+        lang="de">
+    <meta name="description"
+        content="Discover a collection of interactive learning games to practice the alphabet, understand words, and more. Playful learning for kids."
+        lang="en">
+    <meta name="keywords"
+        content="Lernspiele, Alphabet lernen, ABC Spiele, Kinder Bildung, interaktive Lernspiele, Deutsch"
+        lang="de">
+    <meta name="keywords"
+        content="learning games, alphabet, ABC games, kids education, interactive games, German"
+        lang="en">
+
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Material Design Icons -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,0,0">
+
+    <style>
+        * {
+            --tw-ring-shadow: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .material-symbols-rounded {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+        }
+
+        .nav-drawer {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-drawer.open {
+            transform: translateX(0);
+        }
+
+        .nav-overlay {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .nav-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .game-card {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .stat-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            color: #666;
+            font-weight: 500;
+        }
+
+        nav-item:hover {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        nav-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        nav-item .material-symbols-rounded {
+            font-size: 24px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Drawer -->
+    <nav id="nav-drawer" class="nav-drawer fixed left-0 top-0 h-screen w-64 bg-white shadow-2xl z-40">
+        <div class="p-6 border-b border-gray-200">
+            <h1 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+                ABC Games
+            </h1>
+            <p class="text-sm text-gray-500 mt-1">Lerne & Spiele</p>
+        </div>
+
+        <!-- User Profile Section -->
+        <div id="user-profile-section" class="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50">
+            <div class="flex items-center gap-3 mb-4">
+                <div id="user-avatar" class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-white text-xl font-bold">
+                    👤
+                </div>
+                <div>
+                    <p id="user-name" class="font-semibold text-gray-800">Spieler</p>
+                    <p id="user-status" class="text-xs text-gray-500">Offline</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <div class="p-4 space-y-2">
+            <nav-item data-section="games" class="nav-item active">
+                <span class="material-symbols-rounded">videogame_asset</span>
+                <span>Spiele</span>
+            </nav-item>
+            <nav-item data-section="stories" class="nav-item">
+                <span class="material-symbols-rounded">auto_stories</span>
+                <span>Meine Geschichten</span>
+            </nav-item>
+            <nav-item data-section="leaderboard" class="nav-item">
+                <span class="material-symbols-rounded">leaderboard</span>
+                <span>Bestenliste</span>
+            </nav-item>
+            <nav-item data-section="friends" class="nav-item">
+                <span class="material-symbols-rounded">group</span>
+                <span>Freunde</span>
+            </nav-item>
+            <nav-item data-section="sessions" class="nav-item">
+                <span class="material-symbols-rounded">people</span>
+                <span>Spiele mit Freunden</span>
+            </nav-item>
+            <nav-item data-section="achievements" class="nav-item">
+                <span class="material-symbols-rounded">star</span>
+                <span>Erfolge</span>
+            </nav-item>
+        </div>
+
+        <!-- Settings Section -->
+        <div class="absolute bottom-0 left-0 right-0 border-t border-gray-200 p-4 space-y-2 bg-gray-50">
+            <nav-item data-section="settings" class="nav-item">
+                <span class="material-symbols-rounded">settings</span>
+                <span>Einstellungen</span>
+            </nav-item>
+            <nav-item data-section="help" class="nav-item">
+                <span class="material-symbols-rounded">help</span>
+                <span>Hilfe</span>
+            </nav-item>
+        </div>
+    </nav>
+
+    <!-- Navigation Overlay -->
+    <div id="nav-overlay" class="nav-overlay fixed inset-0 bg-black/40 z-30"></div>
+
+    <!-- Main Content -->
+    <main class="ml-0 md:ml-64 transition-all duration-300">
+        <!-- Top Bar -->
+        <div class="bg-white/10 backdrop-blur-md border-b border-white/20 sticky top-0 z-20">
+            <div class="flex items-center justify-between p-4 md:p-6">
+                <button id="menu-toggle" class="md:hidden p-2 hover:bg-white/10 rounded-lg transition">
+                    <span class="material-symbols-rounded text-white">menu</span>
+                </button>
+
+                <div class="flex-1 flex justify-center md:justify-start md:ml-6">
+                    <h1 class="text-xl md:text-2xl font-bold text-white">ABC Lernspiele</h1>
+                </div>
+
+                <button id="notifications-btn" class="relative p-2 hover:bg-white/10 rounded-lg transition">
+                    <span class="material-symbols-rounded text-white">notifications</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Sections -->
+        <div class="p-4 md:p-8">
+            <!-- Games Section (Default) -->
+            <section id="games-section" class="section-content active">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-white mb-4">Wähle ein Spiel</h2>
+                    <p class="text-white/80 mb-6">Lerne Buchstaben, Wörter, Laute, Muster und erstelle Geschichten!</p>
+
+                    <!-- Games Grid -->
+                    <div id="games-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Games will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="stat-card p-6 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-white/70 text-sm">Spiele gespielt</p>
+                                <p id="stat-games-played" class="text-3xl font-bold text-white">0</p>
+                            </div>
+                            <span class="material-symbols-rounded text-white/50 text-5xl">videogame_asset</span>
+                        </div>
+                    </div>
+                    <div class="stat-card p-6 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-white/70 text-sm">Geschichten erstellt</p>
+                                <p id="stat-stories" class="text-3xl font-bold text-white">0</p>
+                            </div>
+                            <span class="material-symbols-rounded text-white/50 text-5xl">auto_stories</span>
+                        </div>
+                    </div>
+                    <div class="stat-card p-6 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-white/70 text-sm">Freunde</p>
+                                <p id="stat-friends" class="text-3xl font-bold text-white">0</p>
+                            </div>
+                            <span class="material-symbols-rounded text-white/50 text-5xl">group</span>
+                        </div>
+                    </div>
+                    <div class="stat-card p-6 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-white/70 text-sm">Erfolge</p>
+                                <p id="stat-achievements" class="text-3xl font-bold text-white">0</p>
+                            </div>
+                            <span class="material-symbols-rounded text-white/50 text-5xl">star</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stories Section -->
+            <section id="stories-section" class="section-content hidden">
+                <h2 class="text-3xl font-bold text-white mb-6">Meine Geschichten</h2>
+                <div id="stories-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Stories will be inserted here -->
+                </div>
+                <div id="no-stories" class="text-center py-12">
+                    <span class="material-symbols-rounded text-white/30 text-6xl mx-auto mb-4 block">auto_stories</span>
+                    <p class="text-white/70 text-lg">Keine Geschichten noch. Erstelle eine im Story Builder!</p>
+                </div>
+            </section>
+
+            <!-- Leaderboard Section -->
+            <section id="leaderboard-section" class="section-content hidden">
+                <h2 class="text-3xl font-bold text-white mb-6">Bestenliste</h2>
+                <div id="leaderboard-container" class="space-y-4">
+                    <!-- Leaderboard will be inserted here -->
+                </div>
+            </section>
+
+            <!-- Friends Section -->
+            <section id="friends-section" class="section-content hidden">
+                <h2 class="text-3xl font-bold text-white mb-6">Freunde</h2>
+                <div id="friends-list" class="space-y-3">
+                    <!-- Friends will be inserted here -->
+                </div>
+            </section>
+
+            <!-- Sessions Section -->
+            <section id="sessions-section" class="section-content hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold text-white">Multiplayer Spiele</h2>
+                    <button id="create-session-btn" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition">
+                        + Spiel erstellen
+                    </button>
+                </div>
+                <div id="sessions-list" class="space-y-4">
+                    <!-- Sessions will be inserted here -->
+                </div>
+            </section>
+
+            <!-- Achievements Section -->
+            <section id="achievements-section" class="section-content hidden">
+                <h2 class="text-3xl font-bold text-white mb-6">Erfolge</h2>
+                <div id="achievements-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- Achievements will be inserted here -->
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings-section" class="section-content hidden">
+                <h2 class="text-3xl font-bold text-white mb-6">Einstellungen</h2>
+                <div class="bg-white/10 backdrop-blur-md rounded-lg p-8 max-w-2xl space-y-6">
+                    <div>
+                        <label class="block text-white font-semibold mb-2">Sprache</label>
+                        <select id="language-select" class="w-full px-4 py-2 rounded-lg bg-white/20 text-white border border-white/30">
+                            <option value="de">Deutsch</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+                    <div class="pt-4 border-t border-white/20 flex gap-2">
+                        <button id="export-data-btn" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition">
+                            Daten exportieren
+                        </button>
+                        <button id="clear-data-btn" class="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition">
+                            Alle Daten löschen
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Help Section -->
+            <section id="help-section" class="section-content hidden">
+                <h2 class="text-3xl font-bold text-white mb-6">Hilfe & FAQ</h2>
+                <div class="bg-white/10 backdrop-blur-md rounded-lg p-8 max-w-2xl space-y-6">
+                    <details class="group cursor-pointer">
+                        <summary class="text-white font-semibold flex items-center gap-2">
+                            <span class="material-symbols-rounded group-open:rotate-180 transition">expand_more</span>
+                            Wie erstelle ich ein Multiplayer-Spiel?
+                        </summary>
+                        <p class="text-white/70 mt-3 ml-8">Gehe zum Abschnitt "Spiele mit Freunden", klicke auf "+ Spiel erstellen", wähle ein Spiel und teile den Einladungscode!</p>
+                    </details>
+
+                    <details class="group cursor-pointer">
+                        <summary class="text-white font-semibold flex items-center gap-2">
+                            <span class="material-symbols-rounded group-open:rotate-180 transition">expand_more</span>
+                            Wo werden meine Geschichten gespeichert?
+                        </summary>
+                        <p class="text-white/70 mt-3 ml-8">Alle Geschichten werden automatisch im Browser gespeichert. Du kannst sie unter "Meine Geschichten" ansehen.</p>
+                    </details>
+
+                    <details class="group cursor-pointer">
+                        <summary class="text-white font-semibold flex items-center gap-2">
+                            <span class="material-symbols-rounded group-open:rotate-180 transition">expand_more</span>
+                            Kann ich meine Daten sichern?
+                        </summary>
+                        <p class="text-white/70 mt-3 ml-8">Ja! Gehe zu Einstellungen und klicke auf "Daten exportieren". Dies speichert alle deine Daten als Datei.</p>
+                    </details>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="reward-container"></div>
+
+    <script type="module">
+        import StorageManager from './storage.js';
+        import MultiplayerManager from './multiplayer.js';
+        import { GAMES, ACHIEVEMENTS } from './config.js';
+
+        // ==================== UI Navigation ====================
+        const navDrawer = document.getElementById('nav-drawer');
+        const navOverlay = document.getElementById('nav-overlay');
+        const menuToggle = document.getElementById('menu-toggle');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        function closeNav() {
+            navDrawer.classList.remove('open');
+            navOverlay.classList.remove('open');
+        }
+
+        function openNav() {
+            navDrawer.classList.add('open');
+            navOverlay.classList.add('open');
+        }
+
+        menuToggle.addEventListener('click', () => {
+            navDrawer.classList.contains('open') ? closeNav() : openNav();
+        });
+
+        navOverlay.addEventListener('click', closeNav);
+
+        // Section Navigation
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const section = item.dataset.section;
+                showSection(section);
+                closeNav();
+
+                navItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section-content').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(`${sectionId}-section`)?.classList.remove('hidden');
+        }
+
+        // ==================== Initialize User ====================
+        function initializeUser() {
+            let profile = StorageManager.getUserProfile();
+            if (!profile) {
+                profile = StorageManager.createDefaultProfile('Spieler');
+                StorageManager.saveUserProfile(profile);
+            }
+
+            document.getElementById('user-avatar').textContent = profile.avatar;
+            document.getElementById('user-name').textContent = profile.name;
+            updateStats();
+        }
+
+        // ==================== Load Games ====================
+        function loadGames() {
+            const gamesGrid = document.getElementById('games-grid');
+            gamesGrid.innerHTML = '';
+
+            Object.values(GAMES).forEach(game => {
+                const gameCard = document.createElement('a');
+                gameCard.href = game.path;
+                gameCard.className = `game-card block bg-white/20 backdrop-blur-md rounded-xl p-6 border border-white/30 hover:bg-white/30 hover:border-white/50 transition cursor-pointer`;
+
+                gameCard.innerHTML = `
+                    <div class="text-5xl mb-4">${game.icon}</div>
+                    <h3 class="text-xl font-bold text-white mb-2">${game.name}</h3>
+                    <p class="text-white/70 text-sm">${game.description}</p>
+                    <div class="mt-4 flex items-center gap-2 text-blue-300 text-sm">
+                        <span>Spielen</span>
+                        <span class="material-symbols-rounded text-base">arrow_forward</span>
+                    </div>
+                `;
+
+                gamesGrid.appendChild(gameCard);
+            });
+        }
+
+        // ==================== Load Stories ====================
+        function loadStories() {
+            const storiesList = document.getElementById('stories-list');
+            const noStories = document.getElementById('no-stories');
+            const stories = StorageManager.getStories();
+
+            if (stories.length === 0) {
+                storiesList.classList.add('hidden');
+                noStories.classList.remove('hidden');
+                return;
+            }
+
+            storiesList.classList.remove('hidden');
+            noStories.classList.add('hidden');
+            storiesList.innerHTML = '';
+
+            stories.slice(-6).reverse().forEach(story => {
+                const storyCard = document.createElement('div');
+                storyCard.className = 'bg-white/10 backdrop-blur-md rounded-lg p-6 border border-white/20';
+
+                const preview = story.content.substring(0, 100) + (story.content.length > 100 ? '...' : '');
+
+                storyCard.innerHTML = `
+                    <h3 class="text-lg font-bold text-white mb-2">${story.title}</h3>
+                    <p class="text-white/70 text-sm mb-4">${preview}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-white/50 text-xs">${new Date(story.createdAt).toLocaleDateString('de-DE')}</span>
+                        <button class="text-blue-300 hover:text-blue-200 text-sm">Mehr lesen →</button>
+                    </div>
+                `;
+
+                storiesList.appendChild(storyCard);
+            });
+        }
+
+        // ==================== Update Stats ====================
+        function updateStats() {
+            const profile = StorageManager.getUserProfile();
+            const stories = StorageManager.getStories();
+            const friends = StorageManager.getFriends();
+            const achievements = StorageManager.getAchievements();
+            const scores = StorageManager.getGameScores();
+
+            const totalGames = Object.values(scores).reduce((sum, arr) => sum + arr.length, 0);
+
+            document.getElementById('stat-games-played').textContent = totalGames;
+            document.getElementById('stat-stories').textContent = stories.length;
+            document.getElementById('stat-friends').textContent = friends.length;
+            document.getElementById('stat-achievements').textContent = achievements.length;
+        }
+
+        // Settings handlers
+        document.getElementById('export-data-btn')?.addEventListener('click', () => {
+            const backup = StorageManager.exportAllData();
+            const json = JSON.stringify(backup, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `abc-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        });
+
+        document.getElementById('clear-data-btn')?.addEventListener('click', () => {
+            if (confirm('Bist du sicher? Das löscht ALLE deine Daten!')) {
+                StorageManager.clearAllData();
+                location.reload();
+            }
+        });
+
+        // ==================== Initialize App ====================
+        initializeUser();
+        loadGames();
+        loadStories();
+
+        // Make functions global for external use
+        window.StorageManager = StorageManager;
+        window.MultiplayerManager = MultiplayerManager;
+        window.GAMES = GAMES;
+    </script>
+
+</body>
+
+</html>
