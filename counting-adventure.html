@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zähl-Abenteuer - ABC Lernspiele</title>
+
+    <meta name="description"
+        content="Zähle Objekte und lerne Zahlen. Trainiert Zahlensinn und eins-zu-eins Zuordnung."
+        lang="de">
+    <meta name="description"
+        content="Count objects and learn numbers. Trains number sense and one-to-one correspondence."
+        lang="en">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #FFC107 0%, #FF9800 100%);
+            background-attachment: fixed;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #FFC107;
+            color: #FFC107;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            min-width: 52px;
+            min-height: 52px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-button:hover {
+            background: #FFC107;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        #page-title {
+            color: white;
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-board {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .instruction {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        .difficulty-selector {
+            margin-bottom: 25px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-btn {
+            padding: 8px 16px;
+            border: 2px solid #ccc;
+            background: white;
+            color: #FFC107;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 40px;
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .difficulty-btn.active {
+            background: #FFC107;
+            color: white;
+            border-color: #FFC107;
+        }
+
+        .game-area {
+            min-height: 400px;
+            background: #f9f9f9;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 2px dashed #ddd;
+        }
+
+        .object-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            min-height: 200px;
+            align-items: center;
+        }
+
+        .counting-object {
+            font-size: 3em;
+            cursor: default;
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .challenge-display {
+            background: linear-gradient(135deg, #FFC107, #FF9800);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 1.2em;
+        }
+
+        .answer-section {
+            margin-top: 30px;
+        }
+
+        .number-input {
+            font-size: 1.2em;
+            padding: 12px 20px;
+            border: 2px solid #FFC107;
+            border-radius: 8px;
+            text-align: center;
+            width: 150px;
+            margin: 15px auto;
+            display: block;
+            min-height: 50px;
+        }
+
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .number-btn {
+            padding: 15px;
+            font-size: 1.3em;
+            font-weight: 600;
+            background: #FFC107;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 50px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .number-btn:hover {
+            background: #FF9800;
+            transform: scale(1.05);
+        }
+
+        .number-btn:active {
+            transform: scale(0.95);
+        }
+
+        .clear-btn {
+            grid-column: 1 / -1;
+            background: #999;
+        }
+
+        .clear-btn:hover {
+            background: #777;
+        }
+
+        .submit-btn {
+            grid-column: 1 / -1;
+            background: #4CAF50;
+            padding: 12px 24px;
+            font-size: 1.05em;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            line-height: 1.2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
+            min-height: 50px;
+            margin-top: 10px;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        .submit-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            font-size: 1em;
+            color: #666;
+        }
+
+        .score-display {
+            font-weight: 600;
+            color: #FFC107;
+            font-size: 1.2em;
+        }
+
+        #controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        #controls button {
+            padding: 12px 24px;
+            font-size: 1.05em;
+            cursor: pointer;
+            background-color: #FFC107;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            line-height: 1.2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
+            min-height: 50px;
+            margin: 6px;
+            font-weight: 600;
+        }
+
+        #controls button:hover {
+            background-color: #FF9800;
+            transform: translateY(-2px);
+        }
+
+        #controls button:active {
+            transform: translateY(0);
+        }
+
+        #reward-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .feedback {
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-top: 15px;
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feedback.correct {
+            color: #4CAF50;
+        }
+
+        .feedback.incorrect {
+            color: #f44336;
+        }
+
+        @media (max-width: 768px) {
+            #page-title {
+                font-size: 1.6em;
+            }
+
+            .object-grid {
+                gap: 12px;
+                min-height: 150px;
+            }
+
+            .counting-object {
+                font-size: 2.5em;
+            }
+
+            .game-area {
+                padding: 20px;
+            }
+
+            .number-pad {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <a href="index.html" class="back-button" id="back-button">← Zurück zum Menü</a>
+
+        <div id="page-title">Zähl-Abenteuer</div>
+
+        <div class="game-board">
+            <div class="instruction" id="instruction">Zähle die Objekte!</div>
+
+            <div class="difficulty-selector">
+                <button class="difficulty-btn active" data-difficulty="1">Leicht (1-5)</button>
+                <button class="difficulty-btn" data-difficulty="2">Mittel (1-10)</button>
+                <button class="difficulty-btn" data-difficulty="3">Schwer (1-20)</button>
+            </div>
+
+            <div class="game-area" id="gameArea"></div>
+
+            <div class="progress-info">
+                <span>Richtig: <span class="score-display" id="correctCount">0</span>/10</span>
+                <span id="completeMessage" style="color: #4CAF50; font-weight: 600; display: none;">✓ Fertig!</span>
+            </div>
+
+            <div id="controls">
+                <button onclick="location.reload()">Neu starten</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="reward-container"></div>
+
+    <script type="module">
+        import { triggerReward, addConfettiStyles, SessionTimer } from './games.js';
+        import { GAMES } from './config.js';
+
+        addConfettiStyles();
+
+        class CountingAdventureGame {
+            constructor() {
+                this.difficulty = 1;
+                this.questionCount = 0;
+                this.correct = 0;
+                this.sessionTimer = null;
+                this.userAnswer = '';
+                this.currentTarget = 0;
+
+                this.emojis = ['🍎', '🍌', '🍓', '🍊', '🌟', '🎈', '🦋', '🐱', '🐶', '🌸'];
+
+                this.setupEventListeners();
+                this.nextChallenge();
+                this.startSessionTimer();
+            }
+
+            setupEventListeners() {
+                document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.difficulty = parseInt(e.target.dataset.difficulty);
+                        this.questionCount = 0;
+                        this.correct = 0;
+                        document.getElementById('correctCount').textContent = '0';
+                        this.nextChallenge();
+                    });
+                });
+            }
+
+            getMaxNumber() {
+                if (this.difficulty === 1) return 5;
+                if (this.difficulty === 2) return 10;
+                return 20;
+            }
+
+            generateChallenge() {
+                const max = this.getMaxNumber();
+                return Math.floor(Math.random() * max) + 1;
+            }
+
+            nextChallenge() {
+                this.questionCount++;
+
+                if (this.questionCount > 10) {
+                    this.completeGame();
+                    return;
+                }
+
+                this.currentTarget = this.generateChallenge();
+                this.userAnswer = '';
+                this.renderChallenge();
+            }
+
+            renderChallenge() {
+                const gameArea = document.getElementById('gameArea');
+
+                const emoji = this.emojis[Math.floor(Math.random() * this.emojis.length)];
+                let objectsHtml = '';
+                for (let i = 0; i < this.currentTarget; i++) {
+                    objectsHtml += `<div class="counting-object">${emoji}</div>`;
+                }
+
+                const html = `
+                    <div class="challenge-display">
+                        Aufgabe ${this.questionCount}: Wie viele siehst du?
+                    </div>
+
+                    <div class="object-grid" id="objectGrid">
+                        ${objectsHtml}
+                    </div>
+
+                    <div class="answer-section">
+                        <input type="text" class="number-input" id="answer" placeholder="Deine Antwort" readonly value="${this.userAnswer}">
+
+                        <div class="number-pad">
+                            ${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num =>
+                                `<button class="number-btn" onclick="window.countingGame.selectNumber(${num})">${num}</button>`
+                            ).join('')}
+                            <button class="number-btn" onclick="window.countingGame.selectNumber(0)">0</button>
+                            <button class="clear-btn" onclick="window.countingGame.clearAnswer()">✕</button>
+                            <button class="submit-btn" onclick="window.countingGame.submitAnswer()">Prüfen</button>
+                        </div>
+
+                        <div id="feedback" class="feedback"></div>
+                    </div>
+                `;
+
+                gameArea.innerHTML = html;
+            }
+
+            selectNumber(num) {
+                if (this.userAnswer.length < 2) {
+                    this.userAnswer += num.toString();
+                    document.getElementById('answer').value = this.userAnswer;
+                }
+            }
+
+            clearAnswer() {
+                this.userAnswer = '';
+                document.getElementById('answer').value = '';
+                document.getElementById('feedback').innerHTML = '';
+            }
+
+            submitAnswer() {
+                const feedback = document.getElementById('feedback');
+                const answer = parseInt(this.userAnswer);
+
+                if (isNaN(answer) || this.userAnswer === '') {
+                    feedback.textContent = 'Bitte gib eine Zahl ein!';
+                    feedback.className = 'feedback incorrect';
+                    return;
+                }
+
+                if (answer === this.currentTarget) {
+                    this.playSound(600);
+                    this.correct++;
+                    document.getElementById('correctCount').textContent = this.correct;
+                    triggerReward(document.querySelector('.game-area'));
+
+                    feedback.textContent = '✓ Richtig!';
+                    feedback.className = 'feedback correct';
+
+                    setTimeout(() => {
+                        this.nextChallenge();
+                    }, 1000);
+                } else {
+                    this.playSound(200);
+                    feedback.textContent = `✗ Falsch! Die richtige Antwort ist ${this.currentTarget}`;
+                    feedback.className = 'feedback incorrect';
+
+                    setTimeout(() => {
+                        this.nextChallenge();
+                    }, 1500);
+                }
+            }
+
+            completeGame() {
+                const gameArea = document.getElementById('gameArea');
+                const percentage = Math.round((this.correct / 10) * 100);
+                gameArea.innerHTML = `
+                    <div style="font-size: 1.3em; color: #FFC107; font-weight: 600; padding: 40px; text-align: center;">
+                        <div style="margin-bottom: 20px;">Spiel beendet! 🎉</div>
+                        <div style="font-size: 1.1em; color: #666;">Du hast ${this.correct} von 10 Aufgaben richtig gelöst!</div>
+                        <div style="font-size: 1em; color: #999; margin-top: 10px;">${percentage}% Erfolgsquote</div>
+                    </div>
+                `;
+                document.getElementById('completeMessage').style.display = 'inline';
+                triggerReward(document.querySelector('.game-board'));
+                if (this.sessionTimer) {
+                    this.sessionTimer.destroy();
+                }
+            }
+
+            playSound(frequency) {
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    oscillator.frequency.value = frequency;
+                    oscillator.type = 'sine';
+
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                } catch (e) {
+                    // Fallback
+                }
+            }
+
+            startSessionTimer() {
+                const sessionLength = GAMES.countingAdventure?.sessionLengthMinutes || 10;
+                this.sessionTimer = new SessionTimer(sessionLength);
+                this.sessionTimer.start();
+            }
+        }
+
+        window.countingGame = new CountingAdventureGame();
+        window.addEventListener('load', () => {
+            // Already initialized
+        });
+    </script>
+</body>
+
+</html>
